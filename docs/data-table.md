@@ -14,7 +14,7 @@ import { DataTable } from '@aaix/laravel-islands-datagrid/vue';
 | `rows` | `Array` | — | **Required.** Used to tell "loading" from "empty". |
 | `meta` | `Object` | `{}` | Pagination meta from the response. |
 | `perPage` | `Number \| String` | `30` | Current page size. |
-| `perPageOptions` | `Array` | `[10, 30, 50, 100, 200]` | Page-size choices. |
+| `perPageOptions` | `Array` | — | Page-size choices. Left out, the pagination bar offers `[5, 10, 30, 50, 100, 200]`. |
 | `colCount` | `Number` | — | **Required.** Column count for the skeleton and empty-state `colspan`. |
 | `loading` | `Boolean` | `false` | Shows skeletons when there are no rows yet, the refresh bar otherwise. |
 | `error` | `Boolean` | `false` | Shows the error banner. |
@@ -22,6 +22,14 @@ import { DataTable } from '@aaix/laravel-islands-datagrid/vue';
 | `skeletonRows` | `Number` | `10` | How many skeleton rows to render. |
 | `skeletonCellClass` | `String` | `'px-6 py-3'` | Padding of a skeleton cell — match your row height. |
 | `skeletonBarClass` | `String` | `'h-6'` | Height of the shimmer bar. |
+| `floatingToolbar` | `Boolean` | `false` | Once the toolbar would leave the screen, it lifts off as a glass pill over the rows. |
+| `floatingFooter` | `Boolean` | `false` | The same for the pagination bar. |
+| `floatTopOffset` | `Number` | `12` | Room above the floating toolbar, for whatever sits at the top of the page. |
+| `floatBottomOffset` | `Number` | `12` | Room below the floating footer. |
+
+The floating variants keep the page's own scroll: the originals stay in place, so
+nothing shifts, and a copy hovers while they are out of view. Reach for them
+instead of turning the table into an inner scroll container to pin its header.
 
 ## Events
 

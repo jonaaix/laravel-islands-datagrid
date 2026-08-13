@@ -30,6 +30,7 @@ export default defineConfig({
             items: [
                { text: 'useDataTable', link: '/use-data-table' },
                { text: 'DataTable', link: '/data-table' },
+               { text: 'Toolbar, Selection, Saved Views', link: '/toolbar-and-selection' },
             ],
          },
       ],

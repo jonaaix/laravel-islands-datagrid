@@ -14,6 +14,7 @@ const table = useDataTable(dataUrl, options);
 | `initial` | `object` | `{}` | Server-provided starting state, merged over `defaults`. |
 | `clientOnly` | `string[]` | `[]` | Keys kept in state and URL but never sent to the server. |
 | `filterKeys` | `string[]` | `[]` | Keys counted by `activeFilterCount` and cleared by `resetFilters()`. |
+| `filterParams` | `string[]` | `[]` | Keys transported as `filter[key]=value` instead of a bare parameter — and written to the URL that way. |
 | `searchKey` | `string` | `'q'` | State key driven by `onSearchInput`. |
 | `searchDelay` | `number` | `350` | Debounce for `onSearchInput`, in milliseconds. |
 | `http` | `object` | built-in fetch client | HTTP client. Anything exposing `get(url, { params })` that resolves to `{ data }`. |
@@ -35,7 +36,8 @@ const table = useDataTable(dataUrl, options);
 | Method | Description |
 | --- | --- |
 | `fetchData()` | Performs the request. Call once on mount. |
-| `reload({ resetPage })` | Syncs the URL and refetches. Pass `resetPage: true` after changing a filter. |
+| `reload({ resetPage, push })` | Syncs the URL and refetches. Pass `resetPage: true` after changing a filter, `push: false` to replace the history entry instead of adding one. |
+| `syncUrl({ push })` | Writes the state into the address bar **without** fetching — how a client-only change (columns, card size) becomes deep-linkable. Replaces the entry unless `push: true`. |
 | `onSearchInput(value)` | Writes to `searchKey` and reloads after the debounce. |
 | `clearSearch()` | Clears `searchKey` immediately, without waiting for the debounce. |
 | `setFilter(key, value)` | Sets a key and reloads from page one. |
