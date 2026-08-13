@@ -133,6 +133,57 @@ useDataTable(props.dataUrl, {
 
 Booleans are mirrored into the URL as `1` and `0`.
 
+## Table or cards
+
+The same datagrid can render as a table for scanning or as a card grid for
+browsing — useful on mobile, and for gallery-style views like products. Add
+`mode` to your defaults, place a `ViewModeToggle` in the toolbar and feed the
+`#cards` slot alongside the usual `#head` and rows:
+
+```js
+const DEFAULTS = { ...FILTERS, mode: 'table', sort: 'updated_at', dir: 'desc', page: 1 };
+
+useDataTable(props.dataUrl, {
+    defaults: DEFAULTS,
+    clientOnly: ['mode'],       // the endpoint does not need it
+});
+
+useAutoCardMode({ state, key: 'products' });   // cards by default under 768 px
+```
+
+```vue
+<DataTable :mode="state.mode" …>
+    <template #toolbar>
+        …
+        <ViewModeToggle
+            :model-value="state.mode"
+            :labels="{ table: t('Table'), cards: t('Cards') }"
+            @update:model-value="(m) => { state.mode = m; syncUrl(); }"
+        />
+        <SortMenu
+            v-if="state.mode === 'cards'"
+            :options="SORT_OPTIONS"
+            :sort="state.sort"
+            :dir="state.dir"
+            :label="t('Sort by')"
+            @sort="setSort"
+        />
+    </template>
+
+    <template #head>…</template>
+    <template #default>
+        <ProductRow v-for="row in rows" :key="row.id" :row="row" />
+    </template>
+    <template #cards>
+        <ProductCard v-for="row in rows" :key="row.id" :row="row" />
+    </template>
+</DataTable>
+```
+
+`state.mode` flows through the URL like any other state key — a link stays a
+link, and a saved view keeps the mode it was in. In cards mode the header
+`<th>`s are ignored, so a `SortMenu` covers sorting instead.
+
 ## Layout around the table
 
 `<DataTable>` renders the card and nothing outside it. Page headers, tabs and

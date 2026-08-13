@@ -100,9 +100,17 @@ client-only change (columns, card size) becomes deep-linkable.
 **`DataTable`** — props `rows`, `meta`, `perPage`, `perPageOptions`, `colCount`,
 `loading`, `error`, `errorMessage`, `skeletonRows`, `skeletonCellClass`,
 `skeletonBarClass`, `floatingToolbar`, `floatingFooter`, `floatTopOffset`
-(`12`), `floatBottomOffset` (`12`); emits `retry`, `page-change`,
-`per-page-change`; slots `toolbar`, `head`, default, `empty`. Extra classes land
-on the card. Set `--table-toolbar-h` on an ancestor to pin the toolbar height.
+(`12`), `floatBottomOffset` (`12`), `mode` (`'table'` | `'cards'`, default
+`'table'`), `cardsMinWidth` (`'260px'`), `cardsGap` (`'0.75rem'`),
+`cardSkeletonHeight` (`'240px'`), `cardSkeletonCount` (`8`); emits `retry`,
+`page-change`, `per-page-change`; slots `toolbar`, `head`, default, `cards`,
+`empty`. Extra classes land on the card. Set `--table-toolbar-h` on an
+ancestor to pin the toolbar height.
+
+**Cards mode:** setting `mode="cards"` renders a responsive auto-fit grid from
+the `#cards` slot instead of the `<table>`. Toolbar, error banner and
+pagination stay the same. The `#head` and default slots are ignored in that
+mode; sorting moves into the toolbar via `SortMenu` (below).
 
 `floatingToolbar` / `floatingFooter` lift toolbar and pagination into glass
 pills once they would leave the screen, while the page keeps its own scroll.
@@ -134,6 +142,25 @@ must not look like an active filter, so only filters opt in.
   on/off; `variant` `pills` (a row of switches) or `segmented` (one question,
   n answers), `clearable` to let go of the chosen one.
 - **`ColumnPicker`** — which columns are visible, plus reset.
+- **`SortButton`** — the header-cell sort control. Props `field` (required),
+  `label` (required), `icon`, `short`, `sort`, `dir`; emits `sort` with the
+  field name (parent flips direction). Same emit contract as `SortMenu`, so
+  header buttons and a toolbar menu share one handler. Reads icon names via
+  `provideIcons()` from `@aaix/laravel-islands`.
+- **`ViewModeToggle`** — segmented control between `'table'` and `'cards'`;
+  props `modelValue`, `labels`; emits `update:modelValue`.
+- **`SortMenu`** — compact sort dropdown for cards mode (or anywhere `<th>`s
+  are too dense); props `options` (`[{field, label}]`), `sort`, `dir`,
+  `label`; emits `sort` (same contract as header SortButtons — parent handles
+  direction).
+- **`GridCard`**, **`GridCardMedia`** — building blocks for the `#cards`
+  slot. `GridCard` slots: `media`, `header`, default, `footer`; props `href`,
+  `active`, `interactive`. `GridCardMedia` gives a `ratio` frame, defaulting
+  to `'3 / 2'`.
+- **`useAutoCardMode({ state, key, breakpoint, cardsValue, tableValue })`** —
+  turns on `cards` under a `matchMedia` breakpoint (default
+  `'(max-width: 767px)'`) the first time a reader lands, stepping back once
+  they pick a mode themselves. A `?mode=…` in the URL also counts as a choice.
 - **`ViewProfileMenu`** with **`useViewProfiles({ state, defaults, keys, storeUrl, profileUrl })`** — saved views, sharing included.
 - **`SelectionBox`** with **`useSelection(rows, { key: 'id' })`** — row selection across pages and bulk actions.
 - **`createHttpClient` / `httpClient` / `sendJson`** — the fetch layer with its non-2xx throw.

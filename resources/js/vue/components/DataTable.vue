@@ -15,12 +15,18 @@ const props = defineProps({
     skeletonRows: { type: Number, default: 10 },
     skeletonCellClass: { type: String, default: 'px-6 py-3' },
     skeletonBarClass: { type: String, default: 'h-6' },
+    mode: { type: String, default: 'table' },
+    cardsMinWidth: { type: String, default: '260px' },
+    cardsGap: { type: String, default: '0.75rem' },
+    cardSkeletonHeight: { type: String, default: '240px' },
+    cardSkeletonCount: { type: Number, default: 8 },
     /**
      * Toolbar and pagination lift off and hover over the rows once they would leave the
      * screen — the page itself keeps scrolling as it always did.
      */
     floatingToolbar: { type: Boolean, default: false },
     floatingFooter: { type: Boolean, default: false },
+    floatingBreakpoint: { type: String, default: '(min-width: 768px)' },
     /** Room above the floating toolbar, for whatever sits at the top of the page. */
     floatTopOffset: { type: Number, default: 12 },
     floatBottomOffset: { type: Number, default: 12 },
@@ -40,10 +46,26 @@ const rail = ref({ left: 0, width: 0 });
 const toolbarHeight = ref(0);
 const footerHeight = ref(0);
 
+const isCards = computed(() => props.mode === 'cards');
+
 /** A bar is worth floating only while enough of the table is still on screen to serve. */
 const MIN_VISIBLE = 120;
 
-const floats = computed(() => props.floatingToolbar || props.floatingFooter);
+const floatingAllowed = ref(true);
+let floatingMedia = null;
+
+function onFloatingMediaChange(event) {
+    floatingAllowed.value = event.matches;
+
+    if (!event.matches) {
+        toolbarUp.value = false;
+        footerUp.value = false;
+    } else {
+        onViewportChange();
+    }
+}
+
+const floats = computed(() => (props.floatingToolbar || props.floatingFooter) && floatingAllowed.value);
 
 let frame = null;
 
@@ -128,8 +150,14 @@ const footerStyle = computed(() => ({
 let cardObserver = null;
 
 onMounted(() => {
-    if (!floats.value) {
+    if (!(props.floatingToolbar || props.floatingFooter)) {
         return;
+    }
+
+    if (window.matchMedia && props.floatingBreakpoint) {
+        floatingMedia = window.matchMedia(props.floatingBreakpoint);
+        floatingAllowed.value = floatingMedia.matches;
+        floatingMedia.addEventListener?.('change', onFloatingMediaChange);
     }
 
     measure();
@@ -147,6 +175,7 @@ onMounted(() => {
 onBeforeUnmount(() => {
     window.removeEventListener('scroll', onViewportChange);
     window.removeEventListener('resize', onViewportChange);
+    floatingMedia?.removeEventListener?.('change', onFloatingMediaChange);
     cardObserver?.disconnect();
     cancelAnimationFrame(frame);
 });
@@ -184,8 +213,8 @@ onBeforeUnmount(() => {
             <button type="button" @click="emit('retry')" class="rounded-md bg-red-100 px-2 py-1 text-xs font-semibold text-red-800 hover:bg-red-200 dark:bg-red-500/20 dark:text-red-200">{{ t('Retry') }}</button>
         </div>
 
-        <!-- Table -->
-        <div class="overflow-x-auto">
+        <!-- Table body -->
+        <div v-if="!isCards" class="overflow-x-auto">
             <table class="min-w-full text-sm" :aria-busy="loading">
                 <thead>
                     <tr class="border-b border-gray-200 bg-gray-50 text-left whitespace-nowrap dark:border-white/10 dark:bg-white/5">
@@ -210,6 +239,41 @@ onBeforeUnmount(() => {
                     </tr>
                 </tbody>
             </table>
+        </div>
+
+        <!-- Cards body -->
+        <div v-else class="p-3" :aria-busy="loading">
+            <template v-if="loading && rows.length === 0">
+                <div
+                    class="grid"
+                    :style="{
+                        gridTemplateColumns: `repeat(auto-fill, minmax(${cardsMinWidth}, 1fr))`,
+                        gap: cardsGap,
+                    }"
+                >
+                    <div
+                        v-for="n in cardSkeletonCount"
+                        :key="'ck' + n"
+                        class="animate-pulse rounded-xl bg-gray-100 dark:bg-white/5"
+                        :style="{ height: cardSkeletonHeight }"
+                    ></div>
+                </div>
+            </template>
+
+            <div
+                v-else-if="rows.length > 0"
+                class="grid"
+                :style="{
+                    gridTemplateColumns: `repeat(auto-fill, minmax(${cardsMinWidth}, 1fr))`,
+                    gap: cardsGap,
+                }"
+            >
+                <slot name="cards" />
+            </div>
+
+            <div v-else-if="!error" class="px-6 py-16 text-center">
+                <slot name="empty" />
+            </div>
         </div>
 
         <!-- Pagination, same lift as the toolbar -->
