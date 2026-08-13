@@ -1,0 +1,263 @@
+<script setup>
+import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue';
+import { IconButton } from '@aaix/laravel-islands/vue/helpers';
+import { useDatagrid } from '../context.js';
+
+const props = defineProps({
+    /** @type {Array<{ref: string, name: string}>} */
+    profiles: { type: Array, required: true },
+    /** @type {{ref: string, name: string, owned: boolean}|null} */
+    active: { type: Object, default: null },
+    changed: { type: Boolean, default: false },
+    dirty: { type: Boolean, default: false },
+    busy: { type: Boolean, default: false },
+    labels: { type: Object, default: () => ({}) },
+});
+
+const emit = defineEmits(['apply', 'reset', 'save', 'update', 'rename', 'remove', 'copy']);
+
+const { t } = useDatagrid();
+
+const open = ref(false);
+const naming = ref(false);
+const draft = ref('');
+const triggerEl = ref(null);
+const nameInput = ref(null);
+const menuStyle = ref({});
+
+const text = computed(() => ({
+    menu: props.labels.menu || t('Views'),
+    save: props.labels.save || t('Save view'),
+    saveAsNew: props.labels.saveAsNew || t('Save as new'),
+    update: props.labels.update || t('Save changes'),
+    rename: props.labels.rename || t('Rename'),
+    remove: props.labels.remove || t('Delete'),
+    reset: props.labels.reset || t('Reset view'),
+    shared: props.labels.shared || t('Shared with you'),
+    yours: props.labels.yours || t('Your views'),
+    changed: props.labels.changed || t('unsaved'),
+    placeholder: props.labels.placeholder || t('Name this view'),
+}));
+
+const shared = computed(() => Boolean(props.active && props.active.owned === false));
+
+const saveLabel = computed(() => (props.active ? text.value.saveAsNew : text.value.save));
+
+const canSave = computed(() => (props.active ? shared.value || props.changed : props.dirty));
+
+function updatePosition() {
+    const box = triggerEl.value?.getBoundingClientRect();
+
+    if (box) {
+        menuStyle.value = { top: `${box.bottom + 4}px`, right: `${Math.max(8, window.innerWidth - box.right)}px` };
+    }
+}
+
+function toggle() {
+    open.value = !open.value;
+    naming.value = false;
+
+    if (open.value) {
+        updatePosition();
+        nextTick(updatePosition);
+    }
+}
+
+function close() {
+    open.value = false;
+    naming.value = false;
+}
+
+function startNaming(seed = '') {
+    draft.value = seed;
+    naming.value = true;
+    nextTick(() => nameInput.value?.focus());
+}
+
+const renaming = ref(false);
+
+function confirmName() {
+    const name = draft.value.trim();
+
+    if (name === '') {
+        return;
+    }
+
+    emit(renaming.value ? 'rename' : 'save', name);
+    close();
+}
+
+function askRename() {
+    renaming.value = true;
+    startNaming(props.active?.name || '');
+}
+
+function askSave() {
+    renaming.value = false;
+    startNaming('');
+}
+
+function pick(profile) {
+    emit('apply', profile);
+    close();
+}
+
+function onKeydown(event) {
+    if (event.key === 'Escape' && open.value) {
+        close();
+    }
+}
+
+function onViewportChange() {
+    if (open.value) {
+        updatePosition();
+    }
+}
+
+onMounted(() => {
+    window.addEventListener('keydown', onKeydown);
+    window.addEventListener('scroll', onViewportChange, { passive: true });
+    window.addEventListener('resize', onViewportChange);
+});
+
+onBeforeUnmount(() => {
+    window.removeEventListener('keydown', onKeydown);
+    window.removeEventListener('scroll', onViewportChange);
+    window.removeEventListener('resize', onViewportChange);
+});
+
+const ITEM_CLASS = 'flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-gray-700'
+    + ' transition-colors hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-white/5';
+</script>
+
+<template>
+    <div ref="triggerEl" class="view-profile-menu relative">
+        <IconButton
+            v-if="!active"
+            :label="text.menu"
+            size="lg"
+            :tone="open ? 'active' : 'quiet'"
+            :tooltip="false"
+            :aria-expanded="open ? 'true' : 'false'"
+            @click="toggle()"
+        >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6Zm0 9.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 8.25 20.25H6A2.25 2.25 0 0 1 3.75 18v-2.25Zm9.75-9.75A2.25 2.25 0 0 1 15.75 3.75H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6Zm0 9.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" />
+            </svg>
+        </IconButton>
+
+        <div
+            v-else
+            class="flex h-9 max-w-[18rem] items-center rounded-full bg-primary-500/10 pl-2.5 pr-1 text-sm font-medium text-primary-700 transition-colors dark:text-primary-300"
+        >
+            <button
+                type="button"
+                @click="toggle()"
+                :aria-expanded="open ? 'true' : 'false'"
+                :aria-label="active.name"
+                class="flex h-9 min-w-0 flex-1 items-center gap-1.5 rounded-full pr-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+            >
+                <svg class="h-4 w-4 shrink-0 opacity-70" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6Zm0 9.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 8.25 20.25H6A2.25 2.25 0 0 1 3.75 18v-2.25Zm9.75-9.75A2.25 2.25 0 0 1 15.75 3.75H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6Zm0 9.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" />
+                </svg>
+
+                <slot name="label" :name="active.name">
+                    <span class="min-w-0 truncate">{{ active.name }}</span>
+                </slot>
+
+                <span v-if="changed" class="shrink-0 text-[10px] font-medium uppercase tracking-wide opacity-70">{{ text.changed }}</span>
+            </button>
+
+            <IconButton
+                :label="text.reset"
+                size="xs"
+                tone="plain"
+                :tooltip="false"
+                class="hover:bg-primary-500/20"
+                @click.stop="emit('reset'); close();"
+            >
+                <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" />
+                </svg>
+            </IconButton>
+        </div>
+
+        <Teleport to="body">
+            <div v-if="open" class="fixed inset-0 z-[60]" @click="close()"></div>
+
+            <div
+                v-if="open"
+                class="fixed z-[61] w-max min-w-[13rem] max-w-[22rem] overflow-hidden rounded-lg bg-white shadow-lg ring-1 ring-gray-200 dark:bg-gray-800 dark:ring-white/10"
+                :style="menuStyle"
+            >
+                <template v-if="naming">
+                    <div class="p-2">
+                        <input
+                            ref="nameInput"
+                            v-model="draft"
+                            type="text"
+                            maxlength="60"
+                            :placeholder="text.placeholder"
+                            @keydown.enter.prevent="confirmName()"
+                            @keydown.esc.prevent="close()"
+                            class="h-8 w-full rounded-md border border-gray-200 bg-white px-2 text-sm text-gray-900 placeholder:text-gray-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-white/10 dark:bg-gray-900 dark:text-gray-100"
+                        />
+                        <button
+                            type="button"
+                            @click="confirmName()"
+                            :disabled="busy || draft.trim() === ''"
+                            class="mt-2 flex w-full items-center justify-center rounded-md bg-primary-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-primary-500 disabled:opacity-40"
+                        >{{ renaming ? text.rename : saveLabel }}</button>
+                    </div>
+                </template>
+
+                <template v-else>
+                    <ul v-if="profiles.length || shared" class="max-h-[50vh] overflow-y-auto py-1">
+                        <li v-if="profiles.length" class="px-3 pb-1 pt-1.5 text-[10px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                            {{ text.yours }}
+                        </li>
+
+                        <li v-for="profile in profiles" :key="profile.ref">
+                            <button type="button" @click="pick(profile)" :class="ITEM_CLASS">
+                                <span class="h-1.5 w-1.5 shrink-0 rounded-full" :class="active?.ref === profile.ref ? 'bg-primary-600 dark:bg-primary-400' : 'bg-transparent'"></span>
+                                <span class="min-w-0 flex-1 truncate">{{ profile.name }}</span>
+                            </button>
+                        </li>
+
+                        <li v-if="shared" class="px-3 pb-1 pt-2 text-[10px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                            {{ text.shared }}
+                        </li>
+
+                        <li v-if="shared">
+                            <div :class="ITEM_CLASS">
+                                <span class="h-1.5 w-1.5 shrink-0 rounded-full bg-primary-600 dark:bg-primary-400"></span>
+                                <span class="min-w-0 flex-1 truncate">{{ active.name }}</span>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <div v-if="canSave || (active && !shared)" class="border-t border-gray-100 p-1 dark:border-white/10">
+                        <button
+                            v-if="changed && active && !shared"
+                            type="button"
+                            @click="emit('update'); close();"
+                            :class="ITEM_CLASS"
+                        >{{ text.update }}</button>
+
+                        <button v-if="canSave" type="button" @click="askSave()" :class="ITEM_CLASS">{{ saveLabel }}</button>
+
+                        <template v-if="active && !shared">
+                            <button type="button" @click="askRename()" :class="ITEM_CLASS">{{ text.rename }}</button>
+                            <button
+                                type="button"
+                                @click="emit('remove'); close();"
+                                class="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-red-600 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-500/10"
+                            >{{ text.remove }}</button>
+                        </template>
+                    </div>
+
+                </template>
+            </div>
+        </Teleport>
+    </div>
+</template>

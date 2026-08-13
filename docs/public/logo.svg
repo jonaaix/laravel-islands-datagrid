@@ -1,0 +1,135 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <!-- Background Gradient (Same as Archipelago) -->
+    <linearGradient id="bg-core" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0F172A" />
+      <stop offset="100%" stop-color="#1E293B" />
+    </linearGradient>
+
+    <!-- Table Surface Gradient -->
+    <linearGradient id="table-surface" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1E293B" />
+      <stop offset="100%" stop-color="#0F172A" />
+    </linearGradient>
+
+    <!-- Core Accent Glow Gradient (Matching the Main Island Glow) -->
+    <linearGradient id="datagrid-glow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34D399" />
+      <stop offset="100%" stop-color="#FB7185" />
+    </linearGradient>
+
+    <!-- Signal Line Gradient -->
+    <linearGradient id="signal-line" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8" stop-opacity="0.8" />
+      <stop offset="100%" stop-color="#34D399" stop-opacity="0.2" />
+    </linearGradient>
+
+    <!-- Pure Blur Filter (Isolated for background glow layers only) -->
+    <filter id="soft-glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3.5" />
+    </filter>
+  </defs>
+
+  <!-- Base Card Frame (App Icon) -->
+  <rect x="8" y="8" width="184" height="184" rx="36" fill="url(#bg-core)" stroke="#334155" stroke-width="1.5" />
+
+  <!-- Background Data Grid (Companion to the topography lines) -->
+  <g stroke="#334155" stroke-width="1" stroke-dasharray="2 6" opacity="0.3">
+    <!-- Horizontal -->
+    <line x1="20" y1="30" x2="180" y2="30" />
+    <line x1="20" y1="50" x2="180" y2="50" />
+    <line x1="20" y1="150" x2="180" y2="150" />
+    <line x1="20" y1="170" x2="180" y2="170" />
+    <!-- Vertical -->
+    <line x1="30" y1="20" x2="30" y2="180" />
+    <line x1="50" y1="20" x2="50" y2="180" />
+    <line x1="150" y1="20" x2="150" y2="180" />
+    <line x1="170" y1="20" x2="170" y2="180" />
+  </g>
+
+  <!-- Incoming Data Streams (Connecting to the table) -->
+  <path d="M 20,85 C 40,85 50,75 70,75" fill="none" stroke="#38BDF8" stroke-width="1.5" stroke-dasharray="3 3" opacity="0.6" />
+  <path d="M 180,115 C 160,115 150,125 130,125" fill="none" stroke="#FB7185" stroke-width="1.5" stroke-dasharray="3 3" opacity="0.6" />
+  <path d="M 100,20 L 100,45" fill="none" stroke="#34D399" stroke-width="1.5" stroke-dasharray="3 3" opacity="0.6" />
+
+  <!-- TABLE STRUCTURE / MAIN DATA GRID (FIXED LAYERING) -->
+
+  <!-- Back Glow Layer (For Finder compatibility) -->
+  <g filter="url(#soft-glow)" opacity="0.85">
+    <!-- Table Container Back-Glow Path with thicker blurred stroke -->
+    <rect x="35" y="55" width="130" height="90" rx="8" fill="none" stroke="url(#datagrid-glow)" stroke-width="7" />
+  </g>
+
+  <!-- Sharp Main Datagrid Container Layer (Foreground, no filter) -->
+  <g>
+    <!-- Table Outer Container -->
+    <rect x="35" y="55" width="130" height="90" rx="8" fill="url(#table-surface)" stroke="url(#datagrid-glow)" stroke-width="2.5" />
+    
+    <!-- Table Header Separator -->
+    <line x1="35" y1="80" x2="165" y2="80" stroke="#334155" stroke-width="1.5" />
+    
+    <!-- Table Row Separators -->
+    <line x1="35" y1="105" x2="165" y2="105" stroke="#334155" stroke-width="1.5" stroke-dasharray="4 2" opacity="0.5" />
+    <line x1="35" y1="130" x2="165" y2="130" stroke="#334155" stroke-width="1.5" stroke-dasharray="4 2" opacity="0.5" />
+
+    <!-- Table Column Separators -->
+    <line x1="75" y1="55" x2="75" y2="145" stroke="#334155" stroke-width="1.5" opacity="0.7" />
+    <line x1="125" y1="55" x2="125" y2="145" stroke="#334155" stroke-width="1.5" opacity="0.7" />
+  </g>
+
+  <!-- TABLE CONTENT / UI ACCENTS (Placed above everything sharp) -->
+  <!-- Header Row Elements -->
+  <rect x="45" y="65" width="20" height="4" rx="2" fill="#94A3B8" opacity="0.5" />
+  <rect x="85" y="65" width="30" height="4" rx="2" fill="#94A3B8" opacity="0.5" />
+  <rect x="135" y="65" width="20" height="4" rx="2" fill="#94A3B8" opacity="0.5" />
+
+  <!-- Sort Icons (Tiny arrows in header) -->
+  <path d="M 68,64 L 71,68 L 65,68 Z" fill="#94A3B8" opacity="0.7" />
+  <path d="M 118,68 L 121,64 L 115,64 Z" fill="#94A3B8" opacity="0.7" />
+
+  <!-- Data Row 1 (Highlight Blue) -->
+  <rect x="45" y="89" width="16" height="8" rx="4" fill="#38BDF8" opacity="0.9" />
+  <rect x="85" y="91" width="25" height="4" rx="2" fill="#334155" />
+  <circle cx="140" cy="93" r="3" fill="#38BDF8" />
+  <line x1="148" y1="93" x2="158" y2="93" stroke="#334155" stroke-width="3" stroke-linecap="round" />
+
+  <!-- Data Row 2 (Highlight Green) -->
+  <rect x="45" y="116" width="12" height="4" rx="2" fill="#334155" />
+  <rect x="85" y="114" width="28" height="8" rx="4" fill="#34D399" opacity="0.9" />
+  <circle cx="140" cy="118" r="3" fill="#34D399" />
+  <line x1="148" y1="118" x2="158" y2="118" stroke="#334155" stroke-width="3" stroke-linecap="round" />
+
+  <!-- Data Row 3 (Highlight Pink/Red) -->
+  <rect x="45" y="137" width="20" height="4" rx="2" fill="#334155" />
+  <rect x="85" y="137" width="15" height="4" rx="2" fill="#334155" />
+  <rect x="135" y="135" width="22" height="6" rx="3" fill="#FB7185" opacity="0.9" />
+
+  <!-- OUTER FLOATING DATA NODES (FIXED LAYERING) -->
+  
+  <!-- Blue Node (NW) -->
+  <g>
+    <!-- Sharp Circle (foreground) -->
+    <circle cx="20" cy="85" r="4" fill="#38BDF8" />
+    <!-- Back-Glow (Finder-safe) -->
+    <circle cx="20" cy="85" r="7" fill="#38BDF8" filter="url(#soft-glow)" opacity="0.8" />
+    <circle cx="20" cy="85" r="1.5" fill="#0F172A" />
+  </g>
+
+  <!-- Coral Node (SE) -->
+  <g>
+    <!-- Sharp Circle (foreground) -->
+    <circle cx="180" cy="115" r="4" fill="#FB7185" />
+    <!-- Back-Glow (Finder-safe) -->
+    <circle cx="180" cy="115" r="7" fill="#FB7185" filter="url(#soft-glow)" opacity="0.8" />
+    <circle cx="180" cy="115" r="1.5" fill="#0F172A" />
+  </g>
+
+  <!-- Green Node (North) -->
+  <g>
+    <!-- Sharp Circle (foreground) -->
+    <circle cx="100" cy="20" r="4" fill="#34D399" />
+    <!-- Back-Glow (Finder-safe) -->
+    <circle cx="100" cy="20" r="7" fill="#34D399" filter="url(#soft-glow)" opacity="0.8" />
+    <circle cx="100" cy="20" r="1.5" fill="#0F172A" />
+  </g>
+</svg>

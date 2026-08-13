@@ -1,0 +1,33 @@
+{
+    "name": "aaix/laravel-islands-datagrid",
+    "description": "A server-driven data table for Laravel Islands: one composable and one shell for fetching, sorting, filtering and paginating, so every table in an application shares the same foundation.",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Jonas Gnioui",
+            "email": "jonaaix@icloud.com"
+        }
+    ],
+    "require": {
+        "php": ">=8.3",
+        "illuminate/support": "^12.0|^13.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Aaix\\LaravelIslandsDatagrid\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Aaix\\LaravelIslandsDatagrid\\DatagridServiceProvider"
+            ]
+        },
+        "branch-alias": {
+            "dev-main": "1.x-dev"
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
