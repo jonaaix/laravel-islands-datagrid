@@ -2,6 +2,7 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue';
 import { IconButton } from '@aaix/laravel-islands/vue/helpers';
 import { useDatagrid } from '../context.js';
+import IconColumns from '../icons/IconColumns.vue';
 
 const props = defineProps({
     /** @type {Array<{key: string, label: string, locked?: boolean}>} */
@@ -98,9 +99,7 @@ onBeforeUnmount(() => {
             :aria-expanded="open ? 'true' : 'false'"
             @click="toggleMenu()"
         >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 5.25h16.5m-16.5 0v13.5m0-13.5a1.5 1.5 0 0 1 1.5-1.5h13.5a1.5 1.5 0 0 1 1.5 1.5m-16.5 13.5a1.5 1.5 0 0 0 1.5 1.5h13.5a1.5 1.5 0 0 0 1.5-1.5m-16.5 0V5.25m16.5 13.5V5.25M9.75 5.25v15m4.5-15v15" />
-            </svg>
+            <IconColumns />
 
             <span
                 v-if="changed"

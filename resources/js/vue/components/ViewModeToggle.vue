@@ -1,6 +1,8 @@
 <script setup>
 import { Tooltip } from '@aaix/laravel-islands/vue/helpers';
 import { useDatagrid } from '../context.js';
+import IconModeTable from '../icons/IconModeTable.vue';
+import IconModeCards from '../icons/IconModeCards.vue';
 
 const props = defineProps({
     modelValue: { type: String, default: 'table' },
@@ -49,29 +51,8 @@ function pick(mode) {
                         ? 'bg-white text-gray-900 shadow-sm ring-1 ring-gray-200 dark:bg-gray-800 dark:text-white dark:ring-white/10'
                         : ''"
                 >
-                    <svg
-                        v-if="mode === 'table'"
-                        class="h-4 w-4"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="1.75"
-                        aria-hidden="true"
-                    >
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6h16.5M3.75 12h16.5M3.75 18h16.5" />
-                    </svg>
-
-                    <svg
-                        v-else
-                        class="h-4 w-4"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="1.75"
-                        aria-hidden="true"
-                    >
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 5.75A1.75 1.75 0 0 1 5.75 4h3.5A1.75 1.75 0 0 1 11 5.75v3.5A1.75 1.75 0 0 1 9.25 11h-3.5A1.75 1.75 0 0 1 4 9.25v-3.5Zm9 0A1.75 1.75 0 0 1 14.75 4h3.5A1.75 1.75 0 0 1 20 5.75v3.5A1.75 1.75 0 0 1 18.25 11h-3.5A1.75 1.75 0 0 1 13 9.25v-3.5Zm-9 9A1.75 1.75 0 0 1 5.75 13h3.5A1.75 1.75 0 0 1 11 14.75v3.5A1.75 1.75 0 0 1 9.25 20h-3.5A1.75 1.75 0 0 1 4 18.25v-3.5Zm9 0A1.75 1.75 0 0 1 14.75 13h3.5A1.75 1.75 0 0 1 20 14.75v3.5A1.75 1.75 0 0 1 18.25 20h-3.5A1.75 1.75 0 0 1 13 18.25v-3.5Z" />
-                    </svg>
+                    <IconModeTable v-if="mode === 'table'" class="h-4 w-4" />
+                    <IconModeCards v-else class="h-4 w-4" />
                 </button>
             </Tooltip>
         </template>

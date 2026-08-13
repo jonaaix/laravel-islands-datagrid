@@ -94,21 +94,31 @@ filters that live in the bar — and the controls that act on the view itself at
 the right-hand end, in this order:
 
 ```
-search · filters                    [display] views · columns · filters ▸ table
+search · filters              [display] views · columns · filters ▸ | mode
 ```
 
 1. **views** — `ViewProfileMenu`
-2. **columns** — `ColumnPicker`
+2. **columns** — `ColumnPicker` (or `SortMenu` in cards mode; they share the slot)
 3. **filters** — the button that opens `FilterPanel`
+4. **mode** — `ViewModeToggle`, sits at the far right
 
-The order holds even where one of the three is missing, so a reader who learns it
-once finds the same control in the same place in every table. Anything that
-changes how a row *reads* rather than which rows appear — a net/gross switch, a
-card size — starts the right-hand group, ahead of the three.
+The order holds even where one of the three middle items is missing, so a reader
+who learns it once finds the same control in the same place in every table.
 
-Only the first control of that group carries `ml-auto`. A second one splits the
-remaining space instead of adding to it, which pushes everything before it into
-the middle of the row.
+Two categories start the right-hand group, in this order:
+
+- **In-row display tweaks** — a net/gross switch, a card size, anything that
+  changes how a row *reads* rather than which rows appear. These come first
+  because they belong to the row, and the row is what the reader is scanning.
+- **View mode** — `ViewModeToggle` between table and cards. This is the one
+  exception to the "view controls at the right-hand end" rule: it sits *after*
+  the filter button, at the extreme right. It is a meta-control over the whole
+  presentation, and modern SaaS UIs (GitHub, Linear, Notion, Google Photos)
+  place layout switchers at the corner for exactly that reason.
+
+Only the first control of the right-hand group carries `ml-auto`. A second one
+splits the remaining space instead of adding to it, which pushes everything
+before it into the middle of the row.
 
 Nothing enforces this; it is a convention, and a table that breaks it looks
 broken to somebody who uses the others.
@@ -215,6 +225,25 @@ but not when the list entry carries extra detail:
     <span class="ml-auto shrink-0 text-xs text-gray-400">{{ String(keyValue).toUpperCase() }}</span>
 </template>
 ```
+
+### Icons
+
+The datagrid ships one icon per toolbar affordance so every table wears the same
+face. Each is a small standalone `<svg>` component, Heroicons **solid mini 20**
+throughout — outline strokes go blurry at that scale and read as faded on the
+toolbar's light-grey bar.
+
+| Component | Where it lives |
+| --- | --- |
+| `IconViews` | trigger for `ViewProfileMenu` |
+| `IconSort` | trigger for `SortMenu` |
+| `IconColumns` | trigger for `ColumnPicker` |
+| `IconModeTable`, `IconModeCards` | the two halves of `ViewModeToggle` |
+| `IconFilter` | the button that opens `FilterPanel` — placed by the island |
+
+Import from `@aaix/laravel-islands-datagrid/vue`. Inline `<svg>` in a consumer is
+a smell: it forks the visual set. Whenever you find yourself pasting a path,
+promote it to a named component next to the six above.
 
 ### SortButton
 

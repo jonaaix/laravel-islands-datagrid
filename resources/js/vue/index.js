@@ -15,6 +15,15 @@ export { default as SortMenu } from './components/SortMenu.vue';
 export { default as GridCard } from './components/GridCard.vue';
 export { default as GridCardMedia } from './components/GridCardMedia.vue';
 
+export {
+    IconColumns,
+    IconFilter,
+    IconModeCards,
+    IconModeTable,
+    IconSort,
+    IconViews,
+} from './icons/index.js';
+
 export { useDataTable } from './composables/useDataTable.js';
 export { useSelection } from './composables/useSelection.js';
 export { useViewProfiles } from './composables/useViewProfiles.js';
