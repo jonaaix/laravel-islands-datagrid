@@ -1,6 +1,6 @@
 <script setup>
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue';
-import { IconButton } from '@aaix/laravel-islands/vue/helpers';
+import { FieldCaption, IconButton } from '@aaix/laravel-islands/vue/helpers';
 import { useDatagrid } from '../context.js';
 import IconSort from '../icons/IconSort.vue';
 
@@ -97,8 +97,8 @@ onBeforeUnmount(() => {
                 class="fixed z-[61] w-56 overflow-hidden rounded-lg bg-white shadow-lg ring-1 ring-gray-200 dark:bg-gray-800 dark:ring-white/10"
                 :style="menuStyle"
             >
-                <p class="border-b border-gray-100 px-3 py-2 text-[10px] font-medium tracking-wide text-gray-500 uppercase dark:border-white/10 dark:text-gray-400">
-                    {{ label || t('Sort by') }}
+                <p class="border-b border-gray-100 px-3 py-2 dark:border-white/10">
+                    <FieldCaption>{{ label || t('Sort by') }}</FieldCaption>
                 </p>
 
                 <ul class="max-h-[60vh] overflow-y-auto py-1">

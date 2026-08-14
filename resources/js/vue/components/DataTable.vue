@@ -20,6 +20,8 @@ const props = defineProps({
     cardsGap: { type: String, default: '0.75rem' },
     cardSkeletonHeight: { type: String, default: '240px' },
     cardSkeletonCount: { type: Number, default: 8 },
+    listSkeletonHeight: { type: String, default: '64px' },
+    listSkeletonCount: { type: Number, default: 10 },
     /**
      * Toolbar and pagination lift off and hover over the rows once they would leave the
      * screen — the page itself keeps scrolling as it always did.
@@ -46,7 +48,9 @@ const rail = ref({ left: 0, width: 0 });
 const toolbarHeight = ref(0);
 const footerHeight = ref(0);
 
+const isTable = computed(() => props.mode !== 'cards' && props.mode !== 'list');
 const isCards = computed(() => props.mode === 'cards');
+const isList = computed(() => props.mode === 'list');
 
 /** A bar is worth floating only while enough of the table is still on screen to serve. */
 const MIN_VISIBLE = 120;
@@ -214,7 +218,7 @@ onBeforeUnmount(() => {
         </div>
 
         <!-- Table body -->
-        <div v-if="!isCards" class="overflow-x-auto">
+        <div v-if="isTable" class="overflow-x-auto">
             <table class="min-w-full text-sm" :aria-busy="loading">
                 <thead>
                     <tr class="border-b border-gray-200 bg-gray-50 text-left whitespace-nowrap dark:border-white/10 dark:bg-white/5">
@@ -242,7 +246,7 @@ onBeforeUnmount(() => {
         </div>
 
         <!-- Cards body -->
-        <div v-else class="p-3" :aria-busy="loading">
+        <div v-else-if="isCards" class="p-3" :aria-busy="loading">
             <template v-if="loading && rows.length === 0">
                 <div
                     class="grid"
@@ -269,6 +273,31 @@ onBeforeUnmount(() => {
                 }"
             >
                 <slot name="cards" />
+            </div>
+
+            <div v-else-if="!error" class="px-6 py-16 text-center">
+                <slot name="empty" />
+            </div>
+        </div>
+
+        <!-- List body -->
+        <div v-else-if="isList" :aria-busy="loading">
+            <template v-if="loading && rows.length === 0">
+                <div class="divide-y divide-gray-100 dark:divide-white/5">
+                    <div
+                        v-for="n in listSkeletonCount"
+                        :key="'lk' + n"
+                        class="animate-pulse bg-gray-50 dark:bg-white/5"
+                        :style="{ height: listSkeletonHeight }"
+                    ></div>
+                </div>
+            </template>
+
+            <div
+                v-else-if="rows.length > 0"
+                class="divide-y divide-gray-100 dark:divide-white/5"
+            >
+                <slot name="list" />
             </div>
 
             <div v-else-if="!error" class="px-6 py-16 text-center">

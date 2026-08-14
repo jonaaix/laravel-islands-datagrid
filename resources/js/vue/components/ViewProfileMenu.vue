@@ -1,6 +1,6 @@
 <script setup>
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue';
-import { IconButton } from '@aaix/laravel-islands/vue/helpers';
+import { FieldCaption, IconButton } from '@aaix/laravel-islands/vue/helpers';
 import { useDatagrid } from '../context.js';
 import IconViews from '../icons/IconViews.vue';
 
@@ -210,9 +210,7 @@ const ITEM_CLASS = 'flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm
 
                 <template v-else>
                     <ul v-if="profiles.length || shared" class="max-h-[50vh] overflow-y-auto py-1">
-                        <li v-if="profiles.length" class="px-3 pb-1 pt-1.5 text-[10px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                            {{ text.yours }}
-                        </li>
+                        <li v-if="profiles.length" class="px-3 pb-1 pt-1.5"><FieldCaption>{{ text.yours }}</FieldCaption></li>
 
                         <li v-for="profile in profiles" :key="profile.ref">
                             <button type="button" @click="pick(profile)" :class="ITEM_CLASS">
@@ -221,9 +219,7 @@ const ITEM_CLASS = 'flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm
                             </button>
                         </li>
 
-                        <li v-if="shared" class="px-3 pb-1 pt-2 text-[10px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                            {{ text.shared }}
-                        </li>
+                        <li v-if="shared" class="px-3 pb-1 pt-2"><FieldCaption>{{ text.shared }}</FieldCaption></li>
 
                         <li v-if="shared">
                             <div :class="ITEM_CLASS">

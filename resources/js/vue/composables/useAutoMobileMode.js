@@ -1,12 +1,12 @@
 import { getCurrentInstance, onBeforeUnmount, onMounted } from 'vue';
 
-export function useAutoCardMode(options = {}) {
+export function useAutoMobileMode(options = {}) {
     const {
         state,
         key,
         breakpoint = '(max-width: 767px)',
-        cardsValue = 'cards',
-        tableValue = 'table',
+        narrow = 'list',
+        wide = null,
     } = options;
 
     if (!state || !key) {
@@ -42,7 +42,11 @@ export function useAutoCardMode(options = {}) {
             return;
         }
 
-        state.mode = media.matches ? cardsValue : tableValue;
+        if (media.matches) {
+            state.mode = narrow;
+        } else if (wide !== null) {
+            state.mode = wide;
+        }
     }
 
     function onChange() {

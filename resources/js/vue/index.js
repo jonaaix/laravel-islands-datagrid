@@ -16,9 +16,11 @@ export { default as GridCard } from './components/GridCard.vue';
 export { default as GridCardMedia } from './components/GridCardMedia.vue';
 
 export {
+    IconChevronRight,
     IconColumns,
     IconFilter,
     IconModeCards,
+    IconModeList,
     IconModeTable,
     IconSort,
     IconViews,
@@ -27,6 +29,6 @@ export {
 export { useDataTable } from './composables/useDataTable.js';
 export { useSelection } from './composables/useSelection.js';
 export { useViewProfiles } from './composables/useViewProfiles.js';
-export { useAutoCardMode } from './composables/useAutoCardMode.js';
+export { useAutoMobileMode } from './composables/useAutoMobileMode.js';
 export { provideDatagrid, useDatagrid } from './context.js';
 export { createHttpClient, httpClient, sendJson } from './http.js';
