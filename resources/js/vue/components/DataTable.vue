@@ -22,6 +22,7 @@ const props = defineProps({
     cardSkeletonCount: { type: Number, default: 8 },
     listSkeletonHeight: { type: String, default: '64px' },
     listSkeletonCount: { type: Number, default: 10 },
+    bleed: { type: Boolean, default: false },
     /**
      * Toolbar and pagination lift off and hover over the rows once they would leave the
      * screen — the page itself keeps scrolling as it always did.
@@ -186,7 +187,11 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-    <div ref="card" class="overflow-hidden rounded-xl bg-white ring-1 ring-gray-200 dark:bg-gray-900 dark:ring-white/10">
+    <div
+        ref="card"
+        class="overflow-hidden bg-white dark:bg-gray-900"
+        :class="bleed ? '' : 'rounded-xl ring-1 ring-gray-200 dark:ring-white/10'"
+    >
         <!--
             Toolbar and pagination stay exactly where they are and keep their space. The
             floating copy hovers above them; nothing is taken away, so nothing shifts.

@@ -12,6 +12,7 @@ const { t } = useDatagrid();
 const slots = useSlots();
 
 const hasFooter = computed(() => (slots.footer?.() ?? []).some((node) => node.type !== Comment));
+const hasTabs = computed(() => (slots.tabs?.() ?? []).some((node) => node.type !== Comment));
 </script>
 
 <template>
@@ -21,6 +22,10 @@ const hasFooter = computed(() => (slots.footer?.() ?? []).some((node) => node.ty
             <IconButton :label="t('Minimize')" :tooltip="false" @click="emit('close')">
                 <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z"/></svg>
             </IconButton>
+        </div>
+
+        <div v-if="hasTabs" class="shrink-0">
+            <slot name="tabs" />
         </div>
 
         <div class="min-h-0 flex-1 overflow-y-auto p-4">

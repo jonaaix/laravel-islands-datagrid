@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { useDatagrid } from '../context.js';
 
 const props = defineProps({
@@ -8,6 +8,10 @@ const props = defineProps({
     perPageOptions: { type: Array, default: () => [5, 10, 30, 50, 100, 200] },
     /** How many page numbers are on show. The row keeps its width as you page through. */
     pageCount: { type: Number, default: 7 },
+    /** Fewer numbers on narrow viewports so the stepper never overflows the row. */
+    narrowPageCount: { type: Number, default: 5 },
+    /** Media query the narrow count applies to. */
+    narrowBreakpoint: { type: String, default: '(max-width: 639px)' },
     /** Tighter, for the floating bar — there it is a passenger, not the furniture. */
     compact: { type: Boolean, default: false },
 });
@@ -20,12 +24,33 @@ const currentPage = computed(() => props.meta.page ?? 1);
 const lastPage = computed(() => props.meta.lastPage ?? 1);
 const totalLabel = computed(() => Number(props.meta.total ?? 0).toLocaleString(locale));
 
+const isNarrow = ref(false);
+let narrowMedia = null;
+
+function onNarrowChange(event) {
+    isNarrow.value = event.matches;
+}
+
+onMounted(() => {
+    if (window.matchMedia && props.narrowBreakpoint) {
+        narrowMedia = window.matchMedia(props.narrowBreakpoint);
+        isNarrow.value = narrowMedia.matches;
+        narrowMedia.addEventListener?.('change', onNarrowChange);
+    }
+});
+
+onBeforeUnmount(() => {
+    narrowMedia?.removeEventListener?.('change', onNarrowChange);
+});
+
+const effectivePageCount = computed(() => (isNarrow.value ? props.narrowPageCount : props.pageCount));
+
 /**
  * A window of fixed size that slides rather than grows: at the ends it shifts inward
  * instead of shrinking, so the row of numbers never changes width mid-browse.
  */
 const pages = computed(() => {
-    const size = Math.min(props.pageCount, lastPage.value);
+    const size = Math.min(effectivePageCount.value, lastPage.value);
     const half = Math.floor(size / 2);
     const from = Math.min(Math.max(1, currentPage.value - half), lastPage.value - size + 1);
 
@@ -55,10 +80,10 @@ function goToPage(page) {
         class="items-center border-t border-gray-200 px-4 dark:border-white/10"
         :class="compact
             ? 'flex flex-wrap justify-center gap-x-5 gap-y-2 py-2'
-            : 'grid grid-cols-1 gap-3 py-3 sm:grid-cols-[1fr_auto_1fr]'"
+            : 'grid grid-cols-2 gap-x-3 gap-y-8 py-3 sm:grid-cols-[1fr_auto_1fr] sm:gap-3'"
     >
         <!-- Left: range + items per page -->
-        <div class="flex min-w-0 items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
+        <div class="flex min-w-0 items-center gap-3 text-xs text-gray-500 dark:text-gray-400 max-sm:col-start-1 max-sm:row-start-1">
             <span v-if="meta.total" class="tabular-nums">{{ meta.from }} – {{ meta.to }} {{ t('of') }} {{ totalLabel }}</span>
             <span class="relative inline-flex items-center">
                 <select
@@ -77,17 +102,20 @@ function goToPage(page) {
 
         <!-- Center: stepper. The arrows keep their distance from the numbers — same shape and
              size, so without the gap they get hit by mistake when paging without looking. -->
-        <div class="flex items-center justify-center" :class="compact ? 'gap-4' : 'gap-6'">
+        <div
+            class="flex items-center justify-center max-sm:col-span-2 max-sm:col-start-1 max-sm:row-start-2"
+            :class="isNarrow ? 'gap-2' : compact ? 'gap-4' : 'gap-6'"
+        >
             <div class="flex items-center">
                 <button
                     type="button"
                     :disabled="currentPage <= 1"
                     @click="goToPage(1)"
                     :aria-label="t('First page')"
-                    :class="compact ? 'h-8 w-8' : 'h-9 w-9'"
-                    class="flex items-center justify-center rounded-full text-gray-600 transition-colors hover:bg-gray-100 disabled:opacity-40 disabled:hover:bg-transparent dark:text-gray-300 dark:hover:bg-white/10"
+                    :class="isNarrow ? 'h-7 w-7' : compact ? 'h-8 w-8' : 'h-9 w-9'"
+                    class="flex items-center justify-center rounded-full text-gray-600 transition-colors hover:bg-gray-100 active:bg-gray-200 disabled:opacity-40 disabled:hover:bg-transparent disabled:active:bg-transparent dark:text-gray-300 dark:hover:bg-white/10 dark:active:bg-white/20"
                 >
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" class="h-4 w-4">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" :class="isNarrow ? 'h-3.5 w-3.5' : 'h-4 w-4'">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M18.75 19.5 11.25 12l7.5-7.5M6 4.5v15" />
                     </svg>
                 </button>
@@ -97,16 +125,16 @@ function goToPage(page) {
                     :disabled="currentPage <= 1"
                     @click="goToPage(currentPage - 1)"
                     :aria-label="t('Previous')"
-                    :class="compact ? 'h-8 w-8' : 'h-9 w-9'"
-                    class="flex items-center justify-center rounded-full text-gray-600 transition-colors hover:bg-gray-100 disabled:opacity-40 disabled:hover:bg-transparent dark:text-gray-300 dark:hover:bg-white/10"
+                    :class="isNarrow ? 'h-7 w-7' : compact ? 'h-8 w-8' : 'h-9 w-9'"
+                    class="flex items-center justify-center rounded-full text-gray-600 transition-colors hover:bg-gray-100 active:bg-gray-200 disabled:opacity-40 disabled:hover:bg-transparent disabled:active:bg-transparent dark:text-gray-300 dark:hover:bg-white/10 dark:active:bg-white/20"
                 >
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" class="h-4 w-4">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" :class="isNarrow ? 'h-3.5 w-3.5' : 'h-4 w-4'">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
                     </svg>
                 </button>
             </div>
 
-            <div class="flex items-center gap-1.5">
+            <div class="flex items-center" :class="isNarrow ? 'gap-1' : 'gap-1.5'">
                 <button
                     v-for="p in pages"
                     :key="p"
@@ -114,10 +142,10 @@ function goToPage(page) {
                     @click="goToPage(p)"
                     class="flex items-center justify-center rounded-full font-medium tabular-nums ring-1 ring-inset transition-colors"
                     :class="[
-                        compact ? 'h-8 min-w-8 px-2 text-xs' : 'h-9 min-w-9 px-2.5 text-sm',
+                        isNarrow ? 'h-7 min-w-7 px-1.5 text-xs' : compact ? 'h-8 min-w-8 px-2 text-xs' : 'h-9 min-w-9 px-2.5 text-sm',
                         p === currentPage
                             ? 'bg-primary-600 text-white ring-primary-600'
-                            : 'text-gray-600 ring-gray-200 hover:bg-gray-50 dark:text-gray-300 dark:ring-white/10 dark:hover:bg-white/5',
+                            : 'text-gray-600 ring-gray-200 hover:bg-gray-50 active:bg-gray-200 dark:text-gray-300 dark:ring-white/10 dark:hover:bg-white/5 dark:active:bg-white/15',
                     ]"
                 >{{ p }}</button>
             </div>
@@ -128,10 +156,10 @@ function goToPage(page) {
                     :disabled="currentPage >= lastPage"
                     @click="goToPage(currentPage + 1)"
                     :aria-label="t('Next')"
-                    :class="compact ? 'h-8 w-8' : 'h-9 w-9'"
-                    class="flex items-center justify-center rounded-full text-gray-600 transition-colors hover:bg-gray-100 disabled:opacity-40 disabled:hover:bg-transparent dark:text-gray-300 dark:hover:bg-white/10"
+                    :class="isNarrow ? 'h-7 w-7' : compact ? 'h-8 w-8' : 'h-9 w-9'"
+                    class="flex items-center justify-center rounded-full text-gray-600 transition-colors hover:bg-gray-100 active:bg-gray-200 disabled:opacity-40 disabled:hover:bg-transparent disabled:active:bg-transparent dark:text-gray-300 dark:hover:bg-white/10 dark:active:bg-white/20"
                 >
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" class="h-4 w-4">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" :class="isNarrow ? 'h-3.5 w-3.5' : 'h-4 w-4'">
                         <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
                     </svg>
                 </button>
@@ -141,10 +169,10 @@ function goToPage(page) {
                     :disabled="currentPage >= lastPage"
                     @click="goToPage(lastPage)"
                     :aria-label="t('Last page')"
-                    :class="compact ? 'h-8 w-8' : 'h-9 w-9'"
-                    class="flex items-center justify-center rounded-full text-gray-600 transition-colors hover:bg-gray-100 disabled:opacity-40 disabled:hover:bg-transparent dark:text-gray-300 dark:hover:bg-white/10"
+                    :class="isNarrow ? 'h-7 w-7' : compact ? 'h-8 w-8' : 'h-9 w-9'"
+                    class="flex items-center justify-center rounded-full text-gray-600 transition-colors hover:bg-gray-100 active:bg-gray-200 disabled:opacity-40 disabled:hover:bg-transparent disabled:active:bg-transparent dark:text-gray-300 dark:hover:bg-white/10 dark:active:bg-white/20"
                 >
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" class="h-4 w-4">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" :class="isNarrow ? 'h-3.5 w-3.5' : 'h-4 w-4'">
                         <path stroke-linecap="round" stroke-linejoin="round" d="m5.25 4.5 7.5 7.5-7.5 7.5M18 4.5v15" />
                     </svg>
                 </button>
@@ -153,7 +181,7 @@ function goToPage(page) {
 
         <!-- Right: jump to page -->
         <div
-            class="flex min-w-0 items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400"
+            class="flex min-w-0 items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400 max-sm:col-start-2 max-sm:row-start-1"
             :class="compact ? '' : 'justify-end'"
         >
             <span>{{ t('Page') }}</span>

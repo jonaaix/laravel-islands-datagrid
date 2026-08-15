@@ -1,4 +1,5 @@
 <script setup>
+import { ref } from 'vue';
 import { useDatagrid } from '../context.js';
 
 defineProps({
@@ -10,6 +11,14 @@ defineProps({
 const emit = defineEmits(['update:modelValue', 'clear']);
 
 const { t } = useDatagrid();
+
+const inputEl = ref(null);
+
+function focus() {
+    inputEl.value?.focus();
+}
+
+defineExpose({ focus });
 </script>
 
 <template>
@@ -20,6 +29,7 @@ const { t } = useDatagrid();
             <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11ZM2 9a7 7 0 1 1 12.452 4.391l3.328 3.329a.75.75 0 1 1-1.06 1.06l-3.329-3.328A7 7 0 0 1 2 9Z" clip-rule="evenodd"/></svg>
         </span>
         <input
+            ref="inputEl"
             type="search"
             :value="modelValue"
             @input="emit('update:modelValue', $event.target.value)"

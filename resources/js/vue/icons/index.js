@@ -5,4 +5,5 @@ export { default as IconModeTable } from './IconModeTable.vue';
 export { default as IconModeCards } from './IconModeCards.vue';
 export { default as IconModeList } from './IconModeList.vue';
 export { default as IconFilter } from './IconFilter.vue';
+export { default as IconSearch } from './IconSearch.vue';
 export { default as IconChevronRight } from './IconChevronRight.vue';

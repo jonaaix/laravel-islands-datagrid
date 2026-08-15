@@ -9,7 +9,7 @@ const props = defineProps({
     modelValue: { type: String, default: 'table' },
     availableModes: {
         type: Array,
-        default: () => ['table', 'cards'],
+        default: () => ['cards', 'table'],
     },
     labels: {
         type: Object,
