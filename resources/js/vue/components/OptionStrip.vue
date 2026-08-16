@@ -1,8 +1,9 @@
 <script setup>
 import { computed } from 'vue';
+import { Tooltip } from '@aaix/laravel-islands/vue/helpers';
 
 const props = defineProps({
-    /** `{ value, label, hint?, count? }` — the application owns every word of it. */
+    /** `{ value, label, hint?, count?, icon?, hideLabel? }` — the application owns every word of it. */
     options: { type: Array, default: () => [] },
     /** One value when picking one of them, an array of values when each is its own switch. */
     modelValue: { type: [String, Number, Boolean, Object, Array], default: null },
@@ -48,7 +49,7 @@ function pick(value) {
 
 const FRAME = {
     pills: 'inline-flex items-center gap-2',
-    segmented: 'inline-flex h-7 items-center gap-0.5 rounded-full p-0.5 ring-1 ring-inset ring-gray-200 dark:ring-white/10',
+    segmented: 'inline-flex h-8 items-center gap-0.5 rounded-full p-0.5 ring-1 ring-inset ring-gray-200 dark:ring-white/10',
 };
 
 const OPTION = {
@@ -58,8 +59,8 @@ const OPTION = {
         off: 'bg-transparent text-gray-500 ring-gray-200 hover:bg-gray-50 hover:text-gray-700 dark:text-gray-400 dark:ring-white/10 dark:hover:bg-white/5 dark:hover:text-gray-200',
     },
     segmented: {
-        base: 'inline-flex h-6 items-center gap-1.5 rounded-full px-2.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500',
-        on: 'bg-primary-500/10 text-primary-700 dark:text-primary-300',
+        base: 'inline-flex h-7 items-center gap-1.5 rounded-full px-2.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 active:bg-gray-200 dark:active:bg-white/15',
+        on: 'bg-white text-gray-900 shadow-sm ring-1 ring-gray-200 dark:bg-gray-800 dark:text-white dark:ring-white/10',
         off: 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200',
     },
 };
@@ -70,24 +71,41 @@ const frame = computed(() => FRAME[props.variant] ?? FRAME.pills);
 
 <template>
     <div class="option-strip" :class="frame" :role="multiple ? 'group' : 'radiogroup'" :aria-label="ariaLabel || undefined">
-        <button
-            v-for="option in options"
-            :key="String(option.value)"
-            type="button"
-            :disabled="disabled"
-            :aria-pressed="multiple ? (isTaken(option.value) ? 'true' : 'false') : undefined"
-            :aria-checked="multiple ? undefined : (isTaken(option.value) ? 'true' : 'false')"
-            :role="multiple ? undefined : 'radio'"
-            :title="undefined"
-            :class="[skin.base, isTaken(option.value) ? skin.on : skin.off, disabled ? 'cursor-not-allowed opacity-50' : '']"
-            @click="pick(option.value)"
-        >
-            <span
-                v-if="marker && variant === 'pills' && isTaken(option.value)"
-                class="h-1.5 w-1.5 shrink-0 rounded-full bg-primary-600 dark:bg-primary-400"
-            ></span>
-            {{ option.label }}
-            <span v-if="option.count !== undefined" class="tabular-nums opacity-70">{{ option.count }}</span>
-        </button>
+        <template v-for="option in options" :key="String(option.value)">
+            <Tooltip v-if="option.hideLabel" :text="option.label">
+                <button
+                    type="button"
+                    :disabled="disabled"
+                    :aria-pressed="multiple ? (isTaken(option.value) ? 'true' : 'false') : undefined"
+                    :aria-checked="multiple ? undefined : (isTaken(option.value) ? 'true' : 'false')"
+                    :aria-label="option.label"
+                    :role="multiple ? undefined : 'radio'"
+                    :class="[skin.base, isTaken(option.value) ? skin.on : skin.off, disabled ? 'cursor-not-allowed opacity-50' : '', option.icon ? 'px-2' : '']"
+                    @click="pick(option.value)"
+                >
+                    <component :is="option.icon" v-if="option.icon" class="h-4 w-4 shrink-0" />
+                    <span v-else class="sr-only">{{ option.label }}</span>
+                </button>
+            </Tooltip>
+
+            <button
+                v-else
+                type="button"
+                :disabled="disabled"
+                :aria-pressed="multiple ? (isTaken(option.value) ? 'true' : 'false') : undefined"
+                :aria-checked="multiple ? undefined : (isTaken(option.value) ? 'true' : 'false')"
+                :role="multiple ? undefined : 'radio'"
+                :class="[skin.base, isTaken(option.value) ? skin.on : skin.off, disabled ? 'cursor-not-allowed opacity-50' : '']"
+                @click="pick(option.value)"
+            >
+                <span
+                    v-if="marker && variant === 'pills' && isTaken(option.value)"
+                    class="h-1.5 w-1.5 shrink-0 rounded-full bg-primary-600 dark:bg-primary-400"
+                ></span>
+                <component :is="option.icon" v-if="option.icon" class="h-4 w-4 shrink-0" />
+                {{ option.label }}
+                <span v-if="option.count !== undefined" class="tabular-nums opacity-70">{{ option.count }}</span>
+            </button>
+        </template>
     </div>
 </template>
