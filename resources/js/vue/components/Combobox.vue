@@ -95,6 +95,12 @@ const VARIANTS = {
         off: 'bg-gray-50 text-gray-700 hover:bg-gray-100 dark:bg-white/5 dark:text-gray-200 dark:hover:bg-white/10',
         clear: 'hover:bg-primary-200/60 dark:hover:bg-primary-500/25',
     },
+    'filter-pill': {
+        base: `flex h-8 items-center rounded-full pl-3 pr-1 text-xs font-medium ring-1 ring-inset transition-colors ${FOCUS}`,
+        on: 'bg-primary-500/10 text-primary-700 ring-primary-500/25 hover:bg-primary-500/15 dark:text-primary-300',
+        off: 'bg-transparent text-gray-500 ring-gray-200 hover:bg-gray-50 hover:text-gray-700 dark:text-gray-400 dark:ring-white/10 dark:hover:bg-white/5 dark:hover:text-gray-200',
+        clear: 'hover:bg-primary-200/60 dark:hover:bg-primary-500/25',
+    },
 };
 
 const skin = computed(() => VARIANTS[props.variant] ?? VARIANTS.field);
