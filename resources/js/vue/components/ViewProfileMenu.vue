@@ -38,6 +38,7 @@ const text = computed(() => ({
     yours: props.labels.yours || t('Your views'),
     changed: props.labels.changed || t('unsaved'),
     placeholder: props.labels.placeholder || t('Name this view'),
+    empty: props.labels.empty || t('No saved views yet. Apply filters or change the sort order, then save the current view.'),
 }));
 
 const shared = computed(() => Boolean(props.active && props.active.owned === false));
@@ -209,6 +210,11 @@ const ITEM_CLASS = 'flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm
                 </template>
 
                 <template v-else>
+                    <div
+                        v-if="!profiles.length && !shared && !canSave && !(active && !shared)"
+                        class="px-3 py-3 text-xs leading-relaxed text-gray-500 dark:text-gray-400"
+                    >{{ text.empty }}</div>
+
                     <ul v-if="profiles.length || shared" class="max-h-[50vh] overflow-y-auto py-1">
                         <li v-if="profiles.length" class="px-3 pb-1 pt-1.5"><FieldCaption>{{ text.yours }}</FieldCaption></li>
 
