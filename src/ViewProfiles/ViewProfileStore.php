@@ -38,7 +38,7 @@ class ViewProfileStore
      * The views a person may pick from — their own, and nobody else's. A view someone shared is
      * reachable by its reference, but it never appears in a list that is not its owner's.
      *
-     * @return array<int, array{ref: string, name: string, payload: array<string, mixed>}>
+     * @return array<int, array{ref: string, name: string, is_default: bool, payload: array<string, mixed>}>
      */
     public function forUser(?int $userId): array
     {
@@ -51,6 +51,21 @@ class ViewProfileStore
             ->get()
             ->map(fn (Model $profile): array => $this->present($profile))
             ->all();
+    }
+
+    /**
+     * The view a person's table opens on when no link points at another one. Null when none is
+     * marked, which is the state a fresh account is in.
+     */
+    public function defaultFor(?int $userId): ?Model
+    {
+        $model = self::model();
+
+        return $model::query()
+            ->where('section', $this->section)
+            ->where('user_id', $userId ?? 0)
+            ->where('is_default', true)
+            ->first();
     }
 
     /**
@@ -112,7 +127,7 @@ class ViewProfileStore
     /**
      * @param  array<string, mixed>|null  $payload
      */
-    public function update(Model $profile, ?string $name, ?array $payload): Model
+    public function update(Model $profile, ?string $name, ?array $payload, ?bool $isDefault = null): Model
     {
         if ($name !== null) {
             $profile->name = $this->name($name);
@@ -122,9 +137,29 @@ class ViewProfileStore
             $profile->payload = $this->schema->sanitize($payload);
         }
 
+        if ($isDefault !== null) {
+            $this->applyDefault($profile, $isDefault);
+        }
+
         $profile->save();
 
         return $profile;
+    }
+
+    private function applyDefault(Model $profile, bool $on): void
+    {
+        if ($on) {
+            $model = self::model();
+
+            $model::query()
+                ->where('section', $this->section)
+                ->where('user_id', $profile->user_id)
+                ->where($profile->getKeyName(), '!=', $profile->getKey())
+                ->where('is_default', true)
+                ->update(['is_default' => false]);
+        }
+
+        $profile->is_default = $on;
     }
 
     public function name(string $name): string
@@ -138,13 +173,14 @@ class ViewProfileStore
     }
 
     /**
-     * @return array{ref: string, name: string, payload: array<string, mixed>}
+     * @return array{ref: string, name: string, is_default: bool, payload: array<string, mixed>}
      */
     public function present(Model $profile): array
     {
         return [
             'ref' => (string) $profile->public_ref,
             'name' => (string) $profile->name,
+            'is_default' => (bool) $profile->is_default,
             'payload' => (array) $profile->payload,
         ];
     }

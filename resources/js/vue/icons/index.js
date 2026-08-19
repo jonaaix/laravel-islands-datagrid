@@ -7,3 +7,4 @@ export { default as IconModeList } from './IconModeList.vue';
 export { default as IconFilter } from './IconFilter.vue';
 export { default as IconSearch } from './IconSearch.vue';
 export { default as IconChevronRight } from './IconChevronRight.vue';
+export { default as IconStar } from './IconStar.vue';

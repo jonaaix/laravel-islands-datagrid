@@ -138,6 +138,15 @@ export function useViewProfiles(options) {
         }
     }
 
+    async function setDefault(on) {
+        const target = active.value;
+        const result = target?.owned ? await call(addressOf(target.ref), 'PATCH', { is_default: Boolean(on) }) : null;
+
+        if (result) {
+            own.value = result.profiles;
+        }
+    }
+
     async function remove() {
         const target = active.value;
 
@@ -178,5 +187,5 @@ export function useViewProfiles(options) {
         apply({});
     }
 
-    return { profiles: own, active, changed, dirty, busy, payload, save, replace, rename, remove, open, reset, write };
+    return { profiles: own, active, changed, dirty, busy, payload, save, replace, rename, remove, open, reset, write, setDefault };
 }

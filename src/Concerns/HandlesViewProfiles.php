@@ -55,12 +55,18 @@ trait HandlesViewProfiles
         $validated = $request->validate([
             'name' => ['sometimes', 'string', 'max:' . ViewProfileStore::MAX_NAME_LENGTH],
             'payload' => ['sometimes', 'array'],
+            'is_default' => ['sometimes', 'boolean'],
         ]);
 
         $store = $this->viewProfiles();
         $record = $this->ownedViewProfile($profile);
 
-        $store->update($record, $validated['name'] ?? null, $validated['payload'] ?? null);
+        $store->update(
+            $record,
+            $validated['name'] ?? null,
+            $validated['payload'] ?? null,
+            array_key_exists('is_default', $validated) ? (bool) $validated['is_default'] : null,
+        );
 
         return $this->viewProfilesResponse($store->present($record));
     }

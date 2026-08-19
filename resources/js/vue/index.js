@@ -23,6 +23,7 @@ export {
     IconModeTable,
     IconSearch,
     IconSort,
+    IconStar,
     IconViews,
 } from './icons/index.js';
 

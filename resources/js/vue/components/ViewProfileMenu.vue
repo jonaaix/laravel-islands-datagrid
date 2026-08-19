@@ -2,6 +2,7 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue';
 import { FieldCaption, IconButton } from '@aaix/laravel-islands/vue/helpers';
 import { useDatagrid } from '../context.js';
+import IconStar from '../icons/IconStar.vue';
 import IconViews from '../icons/IconViews.vue';
 
 const props = defineProps({
@@ -15,7 +16,7 @@ const props = defineProps({
     labels: { type: Object, default: () => ({}) },
 });
 
-const emit = defineEmits(['apply', 'reset', 'save', 'update', 'rename', 'remove', 'copy']);
+const emit = defineEmits(['apply', 'reset', 'save', 'update', 'rename', 'remove', 'copy', 'set-default', 'unset-default']);
 
 const { t } = useDatagrid();
 
@@ -39,6 +40,9 @@ const text = computed(() => ({
     changed: props.labels.changed || t('unsaved'),
     placeholder: props.labels.placeholder || t('Name this view'),
     empty: props.labels.empty || t('No saved views yet. Apply filters or change the sort order, then save the current view.'),
+    setDefault: props.labels.setDefault || t('Set as default'),
+    unsetDefault: props.labels.unsetDefault || t('Unset default'),
+    defaultTitle: props.labels.defaultTitle || t('Default view'),
 }));
 
 const shared = computed(() => Boolean(props.active && props.active.owned === false));
@@ -222,6 +226,11 @@ const ITEM_CLASS = 'flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm
                             <button type="button" @click="pick(profile)" :class="ITEM_CLASS">
                                 <span class="h-1.5 w-1.5 shrink-0 rounded-full" :class="active?.ref === profile.ref ? 'bg-primary-600 dark:bg-primary-400' : 'bg-transparent'"></span>
                                 <span class="min-w-0 flex-1 truncate">{{ profile.name }}</span>
+                                <IconStar
+                                    v-if="profile.is_default"
+                                    :aria-label="text.defaultTitle"
+                                    class="h-3.5 w-3.5 shrink-0 text-amber-400"
+                                />
                             </button>
                         </li>
 
@@ -246,6 +255,11 @@ const ITEM_CLASS = 'flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm
                         <button v-if="canSave" type="button" @click="askSave()" :class="ITEM_CLASS">{{ saveLabel }}</button>
 
                         <template v-if="active && !shared">
+                            <button
+                                type="button"
+                                @click="emit(active.is_default ? 'unset-default' : 'set-default'); close();"
+                                :class="ITEM_CLASS"
+                            >{{ active.is_default ? text.unsetDefault : text.setDefault }}</button>
                             <button type="button" @click="askRename()" :class="ITEM_CLASS">{{ text.rename }}</button>
                             <button
                                 type="button"
