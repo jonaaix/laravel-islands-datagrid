@@ -57,17 +57,21 @@ export function useViewProfiles(options) {
         return sharedProfile.value?.ref === ref_ ? { ...sharedProfile.value, owned: false } : null;
     });
 
-    /** What the table currently describes, as a view would store it. */
-    function payload() {
+    function narrow(source) {
         const result = {};
 
         for (const key of keys) {
-            if (String(state[key] ?? '') !== String(defaults[key] ?? '')) {
-                result[key] = state[key];
+            if (String(source?.[key] ?? '') !== String(defaults[key] ?? '')) {
+                result[key] = source[key];
             }
         }
 
         return result;
+    }
+
+    /** What the table currently describes, as a view would store it. */
+    function payload() {
+        return narrow(state);
     }
 
     function same(a, b) {
@@ -77,7 +81,7 @@ export function useViewProfiles(options) {
     }
 
     /** The active view no longer matches what is on screen. */
-    const changed = computed(() => Boolean(active.value) && !same(payload(), active.value.payload));
+    const changed = computed(() => Boolean(active.value) && !same(payload(), narrow(active.value.payload)));
 
     /** Something is narrowed at all, so there is a view worth saving. */
     const dirty = computed(() => keys.some((key) => {
@@ -187,5 +191,21 @@ export function useViewProfiles(options) {
         apply({});
     }
 
-    return { profiles: own, active, changed, dirty, busy, payload, save, replace, rename, remove, open, reset, write, setDefault };
+    function openDefault() {
+        if (state[stateKey]) {
+            return null;
+        }
+
+        const target = own.value.find((profile) => profile.is_default);
+
+        if (!target) {
+            return null;
+        }
+
+        open(target);
+
+        return target;
+    }
+
+    return { profiles: own, active, changed, dirty, busy, payload, save, replace, rename, remove, open, reset, write, setDefault, openDefault };
 }
