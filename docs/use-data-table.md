@@ -11,7 +11,7 @@ const table = useDataTable(dataUrl, options);
 | Option | Type | Default | Purpose |
 | --- | --- | --- | --- |
 | `defaults` | `object` | `{}` | **Required.** Every state key with its default value. Defines what is sent to the server and what appears in the URL. |
-| `initial` | `object` | `{}` | Server-provided starting state, merged over `defaults`. |
+| `initial` | `object` | `{}` | Server-provided starting state, merged over `defaults`. Any parameter present in the URL on first mount overrides it, so a shared link always restores exactly what was shown. |
 | `clientOnly` | `string[]` | `[]` | Keys kept in state and URL but never sent to the server. |
 | `filterKeys` | `string[]` | `[]` | Keys counted by `activeFilterCount` and cleared by `resetFilters()`. |
 | `filterParams` | `string[]` | `[]` | Keys transported as `filter[key]=value` instead of a bare parameter — and written to the URL that way. |
