@@ -103,15 +103,22 @@ export function useDataTable(dataUrl, options = {}) {
         window.history.replaceState(null, '', url);
     }
 
-    /** Reads the query string back into state, so a history entry actually restores a view. */
-    function applyQuery() {
+    /**
+     * Reads the query string back into state. Absent params fall back to `fallback[key]`
+     * — for popstate that's `defaults` (a step in history genuinely resets missing keys),
+     * for the first mount that's the current state (server-provided `initial` wins over
+     * the raw defaults so we don't clobber it).
+     *
+     * @param {Record<string, any>} fallback
+     */
+    function applyQuery(fallback = defaults) {
         const params = new URLSearchParams(window.location.search);
 
         for (const key of Object.keys(defaults)) {
             const raw = params.get(paramName(key));
 
             if (raw === null) {
-                state[key] = defaults[key];
+                state[key] = fallback[key];
 
                 continue;
             }
@@ -124,6 +131,13 @@ export function useDataTable(dataUrl, options = {}) {
                 state[key] = raw;
             }
         }
+    }
+
+    // The URL is the source of truth for a shareable view. Server-side `initial` seeds
+    // state; on mount, any query string parameter takes over so a reload restores exactly
+    // what the shared link showed.
+    if (typeof window !== 'undefined' && window.location?.search) {
+        applyQuery({ ...state });
     }
 
     function onPopState() {
