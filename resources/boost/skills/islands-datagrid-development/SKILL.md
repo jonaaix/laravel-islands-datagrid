@@ -5,6 +5,16 @@ description: Implement a data table with aaix/laravel-islands-datagrid — the J
 
 # Implementing a Data Table
 
+> **Starting a new list view?** Read
+> [`base-datagrid-recipe.md`](./base-datagrid-recipe.md) first — a neutral,
+> step-by-step blueprint for a datagrid that carries its own weight: search,
+> sort, filters, tabs, pagination, column picker, saved views, card mode, empty
+> state and skeleton. Copy the shape, then trim what the feature does not need.
+>
+> **Before adding any component,** consult the helpers/composables inventory in
+> the sibling skill (`islands-development/helpers-index.md`) — this package's
+> exports are listed there alongside the base helpers.
+
 Two parts: an endpoint answering with rows and meta, and a Vue component
 rendering it. How the surrounding page is routed and rendered is the host
 application's business, not this package's.
@@ -132,38 +142,12 @@ deep-linked selection outside that page shows the placeholder.
 neutral, `filter` and `filter-card` tint a set value. A picker inside a form
 must not look like an active filter, so only filters opt in.
 
-**Also exported, before building any of it by hand:**
-
-- **`Pagination`** — the bar `DataTable` already renders; standalone only outside a table.
-- **`FilterPanel`** — the panel beside the table, with its own dock behaviour.
-- **`TreeSelect`** — a hierarchy with a searchable path, one fetch per URL, cached.
-- **`MultiSelect`** — several values from one list.
-- **`OptionStrip`** — a micro switcher: one-of-n, or `multiple` for per-option
-  on/off; `variant` `pills` (a row of switches) or `segmented` (one question,
-  n answers), `clearable` to let go of the chosen one.
-- **`ColumnPicker`** — which columns are visible, plus reset.
-- **`SortButton`** — the header-cell sort control. Props `field` (required),
-  `label` (required), `icon`, `short`, `sort`, `dir`; emits `sort` with the
-  field name (parent flips direction). Same emit contract as `SortMenu`, so
-  header buttons and a toolbar menu share one handler. Reads icon names via
-  `provideIcons()` from `@aaix/laravel-islands`.
-- **`ViewModeToggle`** — segmented control between `'table'` and `'cards'`;
-  props `modelValue`, `labels`; emits `update:modelValue`.
-- **`SortMenu`** — compact sort dropdown for cards mode (or anywhere `<th>`s
-  are too dense); props `options` (`[{field, label}]`), `sort`, `dir`,
-  `label`; emits `sort` (same contract as header SortButtons — parent handles
-  direction).
-- **`GridCard`**, **`GridCardMedia`** — building blocks for the `#cards`
-  slot. `GridCard` slots: `media`, `header`, default, `footer`; props `href`,
-  `active`, `interactive`. `GridCardMedia` gives a `ratio` frame, defaulting
-  to `'3 / 2'`.
-- **`useAutoCardMode({ state, key, breakpoint, cardsValue, tableValue })`** —
-  turns on `cards` under a `matchMedia` breakpoint (default
-  `'(max-width: 767px)'`) the first time a reader lands, stepping back once
-  they pick a mode themselves. A `?mode=…` in the URL also counts as a choice.
-- **`ViewProfileMenu`** with **`useViewProfiles({ state, defaults, keys, storeUrl, profileUrl })`** — saved views, sharing included.
-- **`SelectionBox`** with **`useSelection(rows, { key: 'id' })`** — row selection across pages and bulk actions.
-- **`createHttpClient` / `httpClient` / `sendJson`** — the fetch layer with its non-2xx throw.
+For everything else the package exports — `FilterPanel`, `TreeSelect`,
+`MultiSelect`, `OptionStrip`, `ColumnPicker`, `SortButton`, `SortMenu`,
+`GridCard`, `Pagination`, `useViewProfiles`, `useAutoMobileMode`,
+`useFilterPanelDock`, `useSelection`, `httpClient` / `sendJson`, the shipped
+icon components — see the inventory in the sibling skill
+(`islands-development/helpers-index.md`).
 
 **`provideDatagrid({ t, locale })`** — optional; hands the package your
 translator. Without it, English source strings and locale `en`.
