@@ -1,6 +1,6 @@
 {
     "name": "@aaix/laravel-islands-datagrid",
-    "version": "1.0.18",
+    "version": "1.0.19",
     "description": "A server-driven data table for Vue: one composable and one shell for fetching, sorting, filtering and paginating.",
     "type": "module",
     "license": "MIT",
@@ -9,6 +9,6 @@
     },
     "peerDependencies": {
         "vue": "^3.4",
-        "@aaix/laravel-islands": "^1.0.21"
+        "@aaix/laravel-islands": "^1.0.22"
     }
 }
