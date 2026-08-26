@@ -1,7 +1,7 @@
 export { default as DataTable } from './components/DataTable.vue';
 export { default as Pagination } from './components/Pagination.vue';
 export { default as FilterPanel } from './components/FilterPanel.vue';
-export { default as Combobox } from './components/Combobox.vue';
+export { Combobox } from '@aaix/laravel-islands/vue/helpers';
 export { default as TreeSelect } from './components/TreeSelect.vue';
 export { default as MultiSelect } from './components/MultiSelect.vue';
 export { default as OptionStrip } from './components/OptionStrip.vue';
