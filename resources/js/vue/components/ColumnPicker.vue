@@ -95,17 +95,17 @@ onBeforeUnmount(() => {
             size="lg"
             :tone="open ? 'active' : 'quiet'"
             :tooltip="false"
-            class="relative"
             :aria-expanded="open ? 'true' : 'false'"
             @click="toggleMenu()"
         >
             <IconColumns />
-
-            <span
-                v-if="changed"
-                class="absolute -right-0.5 -top-0.5 inline-flex h-4 min-w-[1rem] items-center justify-center rounded-full bg-primary-600 px-1 text-[10px] font-semibold leading-none text-white ring-2 ring-white dark:bg-primary-500 dark:ring-gray-900"
-            >{{ count }}</span>
         </IconButton>
+
+        <!-- Outside the button: it clips its own overflow to keep the ripple inside the circle. -->
+        <span
+            v-if="changed"
+            class="pointer-events-none absolute -top-0.5 -right-0.5 inline-flex h-4 min-w-[1rem] items-center justify-center rounded-full bg-primary-600 px-1 text-[10px] leading-none font-semibold text-white ring-2 ring-white dark:bg-primary-500 dark:ring-gray-900"
+        >{{ count }}</span>
 
         <Teleport to="body">
             <div v-if="open" class="fixed inset-0 z-[60]" @click="close()"></div>
