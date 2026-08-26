@@ -316,6 +316,7 @@ onBeforeUnmount(() => {
                 :meta="meta"
                 :per-page="perPage"
                 :per-page-options="perPageOptions"
+                :loading="loading"
                 @page-change="emit('page-change', $event)"
                 @per-page-change="emit('per-page-change', $event)"
             />
@@ -334,6 +335,7 @@ onBeforeUnmount(() => {
                     :meta="meta"
                     :per-page="perPage"
                     :per-page-options="perPageOptions"
+                    :loading="loading"
                     compact
                     @page-change="emit('page-change', $event)"
                     @per-page-change="emit('per-page-change', $event)"

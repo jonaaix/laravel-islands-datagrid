@@ -1,5 +1,6 @@
 <script setup>
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { Ripples, useRipple } from '@aaix/laravel-islands/vue/helpers';
 import { useDatagrid } from '../context.js';
 
 const props = defineProps({
@@ -14,9 +15,14 @@ const props = defineProps({
     narrowBreakpoint: { type: String, default: '(max-width: 639px)' },
     /** Tighter, for the floating bar — there it is a passenger, not the furniture. */
     compact: { type: Boolean, default: false },
+    /** While a page is on its way, the button that asked for it says so. */
+    loading: { type: Boolean, default: false },
 });
 
 const emit = defineEmits(['page-change', 'per-page-change']);
+
+const pendingPage = ref(null);
+const ripple = useRipple();
 
 const { t, locale } = useDatagrid();
 
@@ -60,12 +66,21 @@ const pages = computed(() => {
 const pageOptions = computed(() => Array.from({ length: lastPage.value }, (_, i) => i + 1));
 
 function goToPage(page) {
+    pendingPage.value = page;
     emit('page-change', page);
 
     if (typeof window !== 'undefined') {
         window.scrollTo({ top: 0 });
     }
 }
+
+// The pending page is what the reader asked for; once the answer is in, the row itself says
+// which page it is on.
+watch(() => props.loading, (busy) => {
+    if (!busy) {
+        pendingPage.value = null;
+    }
+});
 </script>
 
 <template>
@@ -110,27 +125,29 @@ function goToPage(page) {
                 <button
                     type="button"
                     :disabled="currentPage <= 1"
-                    @click="goToPage(1)"
+                    @click="ripple.press($event, 'first'); goToPage(1)"
                     :aria-label="t('First page')"
                     :class="isNarrow ? 'h-7 w-7' : compact ? 'h-8 w-8' : 'h-9 w-9'"
-                    class="flex items-center justify-center rounded-full text-gray-600 transition-colors hover:bg-gray-100 active:bg-gray-200 disabled:opacity-40 disabled:hover:bg-transparent disabled:active:bg-transparent dark:text-gray-300 dark:hover:bg-white/10 dark:active:bg-white/20"
+                    class="relative flex items-center justify-center overflow-hidden rounded-full text-gray-600 transition-colors hover:bg-gray-100 active:bg-gray-200 disabled:opacity-40 disabled:hover:bg-transparent disabled:active:bg-transparent dark:text-gray-300 dark:hover:bg-white/10 dark:active:bg-white/20"
                 >
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" :class="isNarrow ? 'h-3.5 w-3.5' : 'h-4 w-4'">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M18.75 19.5 11.25 12l7.5-7.5M6 4.5v15" />
                     </svg>
+                    <Ripples :items="ripple.on('first')" />
                 </button>
 
                 <button
                     type="button"
                     :disabled="currentPage <= 1"
-                    @click="goToPage(currentPage - 1)"
+                    @click="ripple.press($event, 'prev'); goToPage(currentPage - 1)"
                     :aria-label="t('Previous')"
                     :class="isNarrow ? 'h-7 w-7' : compact ? 'h-8 w-8' : 'h-9 w-9'"
-                    class="flex items-center justify-center rounded-full text-gray-600 transition-colors hover:bg-gray-100 active:bg-gray-200 disabled:opacity-40 disabled:hover:bg-transparent disabled:active:bg-transparent dark:text-gray-300 dark:hover:bg-white/10 dark:active:bg-white/20"
+                    class="relative flex items-center justify-center overflow-hidden rounded-full text-gray-600 transition-colors hover:bg-gray-100 active:bg-gray-200 disabled:opacity-40 disabled:hover:bg-transparent disabled:active:bg-transparent dark:text-gray-300 dark:hover:bg-white/10 dark:active:bg-white/20"
                 >
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" :class="isNarrow ? 'h-3.5 w-3.5' : 'h-4 w-4'">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
                     </svg>
+                    <Ripples :items="ripple.on('prev')" />
                 </button>
             </div>
 
@@ -139,42 +156,59 @@ function goToPage(page) {
                     v-for="p in pages"
                     :key="p"
                     type="button"
-                    @click="goToPage(p)"
-                    class="flex items-center justify-center rounded-full font-medium tabular-nums ring-1 ring-inset transition-colors"
+                    @click="ripple.press($event, `page-${p}`); goToPage(p)"
+                    class="relative flex items-center justify-center overflow-hidden rounded-full font-medium tabular-nums ring-1 ring-inset transition-colors"
                     :class="[
                         isNarrow ? 'h-7 min-w-7 px-1.5 text-xs' : compact ? 'h-8 min-w-8 px-2 text-xs' : 'h-9 min-w-9 px-2.5 text-sm',
                         p === currentPage
-                            ? 'bg-primary-600 text-white ring-primary-600'
+                            ? 'bg-primary-600 text-white ring-primary-600 hover:bg-primary-500 active:bg-primary-700'
                             : 'text-gray-600 ring-gray-200 hover:bg-gray-50 active:bg-gray-200 dark:text-gray-300 dark:ring-white/10 dark:hover:bg-white/5 dark:active:bg-white/15',
                     ]"
-                >{{ p }}</button>
+                >
+                    <svg
+                        v-if="loading && pendingPage === p"
+                        class="animate-spin"
+                        :class="isNarrow || compact ? 'h-3 w-3' : 'h-3.5 w-3.5'"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        aria-hidden="true"
+                    >
+                        <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="3" class="opacity-25" />
+                        <path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" stroke-width="3" stroke-linecap="round" />
+                    </svg>
+                    <template v-else>{{ p }}</template>
+
+                    <Ripples :items="ripple.on(`page-${p}`)" />
+                </button>
             </div>
 
             <div class="flex items-center">
                 <button
                     type="button"
                     :disabled="currentPage >= lastPage"
-                    @click="goToPage(currentPage + 1)"
+                    @click="ripple.press($event, 'next'); goToPage(currentPage + 1)"
                     :aria-label="t('Next')"
                     :class="isNarrow ? 'h-7 w-7' : compact ? 'h-8 w-8' : 'h-9 w-9'"
-                    class="flex items-center justify-center rounded-full text-gray-600 transition-colors hover:bg-gray-100 active:bg-gray-200 disabled:opacity-40 disabled:hover:bg-transparent disabled:active:bg-transparent dark:text-gray-300 dark:hover:bg-white/10 dark:active:bg-white/20"
+                    class="relative flex items-center justify-center overflow-hidden rounded-full text-gray-600 transition-colors hover:bg-gray-100 active:bg-gray-200 disabled:opacity-40 disabled:hover:bg-transparent disabled:active:bg-transparent dark:text-gray-300 dark:hover:bg-white/10 dark:active:bg-white/20"
                 >
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" :class="isNarrow ? 'h-3.5 w-3.5' : 'h-4 w-4'">
                         <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
                     </svg>
+                    <Ripples :items="ripple.on('next')" />
                 </button>
 
                 <button
                     type="button"
                     :disabled="currentPage >= lastPage"
-                    @click="goToPage(lastPage)"
+                    @click="ripple.press($event, 'last'); goToPage(lastPage)"
                     :aria-label="t('Last page')"
                     :class="isNarrow ? 'h-7 w-7' : compact ? 'h-8 w-8' : 'h-9 w-9'"
-                    class="flex items-center justify-center rounded-full text-gray-600 transition-colors hover:bg-gray-100 active:bg-gray-200 disabled:opacity-40 disabled:hover:bg-transparent disabled:active:bg-transparent dark:text-gray-300 dark:hover:bg-white/10 dark:active:bg-white/20"
+                    class="relative flex items-center justify-center overflow-hidden rounded-full text-gray-600 transition-colors hover:bg-gray-100 active:bg-gray-200 disabled:opacity-40 disabled:hover:bg-transparent disabled:active:bg-transparent dark:text-gray-300 dark:hover:bg-white/10 dark:active:bg-white/20"
                 >
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" :class="isNarrow ? 'h-3.5 w-3.5' : 'h-4 w-4'">
                         <path stroke-linecap="round" stroke-linejoin="round" d="m5.25 4.5 7.5 7.5-7.5 7.5M18 4.5v15" />
                     </svg>
+                    <Ripples :items="ripple.on('last')" />
                 </button>
             </div>
         </div>

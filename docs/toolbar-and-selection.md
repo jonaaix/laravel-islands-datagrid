@@ -104,6 +104,7 @@ allows and floats over the table where it does not.
 | `perPageOptions` | `[5, 10, 30, 50, 100, 200]` | |
 | `pageCount` | `7` | how many page buttons — a window that slides rather than grows, so buttons do not move under the pointer |
 | `compact` | `false` | drops the page jumper for narrow places |
+| `loading` | `false` | while a page is on its way, the button that asked for it carries a spinner in place of its number — `DataTable` passes this through |
 
 Emits `page-change`, `per-page-change`.
 
