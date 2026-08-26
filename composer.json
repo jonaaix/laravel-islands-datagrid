@@ -11,7 +11,8 @@
     ],
     "require": {
         "php": ">=8.3",
-        "illuminate/support": "^12.0|^13.0"
+        "illuminate/support": "^12.0|^13.0",
+        "aaix/laravel-islands": "^1.0.21"
     },
     "autoload": {
         "psr-4": {

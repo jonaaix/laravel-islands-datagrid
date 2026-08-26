@@ -9,9 +9,12 @@
 Nothing else. The package ships its own fetch-based HTTP client, so there is no
 axios to install and no global to configure.
 
-The package is standalone: it imports nothing but Vue. It pairs naturally with
-[`aaix/laravel-islands`](https://github.com/jonaaix/laravel-islands), but does
-not require it — see [Translations and locale](#translations-and-locale).
+It builds on [`aaix/laravel-islands`](https://github.com/jonaaix/laravel-islands)
+and takes its generic controls from there — the field frame behind `Combobox`, the
+round buttons in the toolbar, the press feedback the stepper shares. Installing
+this package brings it along; giving the frontend both aliases is part of the
+wiring below. The translator, on the other hand, stays optional — see
+[Translations and locale](#translations-and-locale).
 
 ## Installation
 
