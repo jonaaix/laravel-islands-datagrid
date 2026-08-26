@@ -125,7 +125,8 @@ watch(() => props.loading, (busy) => {
                 <button
                     type="button"
                     :disabled="currentPage <= 1"
-                    @click="ripple.press($event, 'first'); goToPage(1)"
+                    @pointerdown="ripple.press($event, 'first')"
+                    @click="goToPage(1)"
                     :aria-label="t('First page')"
                     :class="isNarrow ? 'h-7 w-7' : compact ? 'h-8 w-8' : 'h-9 w-9'"
                     class="relative flex items-center justify-center overflow-hidden rounded-full text-gray-600 transition-colors hover:bg-gray-100 active:bg-gray-200 disabled:opacity-40 disabled:hover:bg-transparent disabled:active:bg-transparent dark:text-gray-300 dark:hover:bg-white/10 dark:active:bg-white/20"
@@ -139,7 +140,8 @@ watch(() => props.loading, (busy) => {
                 <button
                     type="button"
                     :disabled="currentPage <= 1"
-                    @click="ripple.press($event, 'prev'); goToPage(currentPage - 1)"
+                    @pointerdown="ripple.press($event, 'prev')"
+                    @click="goToPage(currentPage - 1)"
                     :aria-label="t('Previous')"
                     :class="isNarrow ? 'h-7 w-7' : compact ? 'h-8 w-8' : 'h-9 w-9'"
                     class="relative flex items-center justify-center overflow-hidden rounded-full text-gray-600 transition-colors hover:bg-gray-100 active:bg-gray-200 disabled:opacity-40 disabled:hover:bg-transparent disabled:active:bg-transparent dark:text-gray-300 dark:hover:bg-white/10 dark:active:bg-white/20"
@@ -156,7 +158,8 @@ watch(() => props.loading, (busy) => {
                     v-for="p in pages"
                     :key="p"
                     type="button"
-                    @click="ripple.press($event, `page-${p}`); goToPage(p)"
+                    @pointerdown="ripple.press($event, `page-${p}`)"
+                    @click="goToPage(p)"
                     class="relative flex items-center justify-center overflow-hidden rounded-full font-medium tabular-nums ring-1 ring-inset transition-colors"
                     :class="[
                         isNarrow ? 'h-7 min-w-7 px-1.5 text-xs' : compact ? 'h-8 min-w-8 px-2 text-xs' : 'h-9 min-w-9 px-2.5 text-sm',
@@ -186,7 +189,8 @@ watch(() => props.loading, (busy) => {
                 <button
                     type="button"
                     :disabled="currentPage >= lastPage"
-                    @click="ripple.press($event, 'next'); goToPage(currentPage + 1)"
+                    @pointerdown="ripple.press($event, 'next')"
+                    @click="goToPage(currentPage + 1)"
                     :aria-label="t('Next')"
                     :class="isNarrow ? 'h-7 w-7' : compact ? 'h-8 w-8' : 'h-9 w-9'"
                     class="relative flex items-center justify-center overflow-hidden rounded-full text-gray-600 transition-colors hover:bg-gray-100 active:bg-gray-200 disabled:opacity-40 disabled:hover:bg-transparent disabled:active:bg-transparent dark:text-gray-300 dark:hover:bg-white/10 dark:active:bg-white/20"
@@ -200,7 +204,8 @@ watch(() => props.loading, (busy) => {
                 <button
                     type="button"
                     :disabled="currentPage >= lastPage"
-                    @click="ripple.press($event, 'last'); goToPage(lastPage)"
+                    @pointerdown="ripple.press($event, 'last')"
+                    @click="goToPage(lastPage)"
                     :aria-label="t('Last page')"
                     :class="isNarrow ? 'h-7 w-7' : compact ? 'h-8 w-8' : 'h-9 w-9'"
                     class="relative flex items-center justify-center overflow-hidden rounded-full text-gray-600 transition-colors hover:bg-gray-100 active:bg-gray-200 disabled:opacity-40 disabled:hover:bg-transparent disabled:active:bg-transparent dark:text-gray-300 dark:hover:bg-white/10 dark:active:bg-white/20"
