@@ -1,6 +1,6 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
-import { Ripples, useRipple } from '@aaix/laravel-islands/vue/helpers';
+import { vRipple } from '@aaix/laravel-islands/vue/helpers';
 import { useDatagrid } from '../context.js';
 
 const props = defineProps({
@@ -22,7 +22,6 @@ const props = defineProps({
 const emit = defineEmits(['page-change', 'per-page-change']);
 
 const pendingPage = ref(null);
-const ripple = useRipple();
 
 const { t, locale } = useDatagrid();
 
@@ -125,7 +124,7 @@ watch(() => props.loading, (busy) => {
                 <button
                     type="button"
                     :disabled="currentPage <= 1"
-                    @pointerdown="ripple.press($event, 'first')"
+                    v-ripple
                     @click="goToPage(1)"
                     :aria-label="t('First page')"
                     :class="isNarrow ? 'h-7 w-7' : compact ? 'h-8 w-8' : 'h-9 w-9'"
@@ -134,13 +133,12 @@ watch(() => props.loading, (busy) => {
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" :class="isNarrow ? 'h-3.5 w-3.5' : 'h-4 w-4'">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M18.75 19.5 11.25 12l7.5-7.5M6 4.5v15" />
                     </svg>
-                    <Ripples :items="ripple.on('first')" />
                 </button>
 
                 <button
                     type="button"
                     :disabled="currentPage <= 1"
-                    @pointerdown="ripple.press($event, 'prev')"
+                    v-ripple
                     @click="goToPage(currentPage - 1)"
                     :aria-label="t('Previous')"
                     :class="isNarrow ? 'h-7 w-7' : compact ? 'h-8 w-8' : 'h-9 w-9'"
@@ -149,7 +147,6 @@ watch(() => props.loading, (busy) => {
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" :class="isNarrow ? 'h-3.5 w-3.5' : 'h-4 w-4'">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
                     </svg>
-                    <Ripples :items="ripple.on('prev')" />
                 </button>
             </div>
 
@@ -158,7 +155,7 @@ watch(() => props.loading, (busy) => {
                     v-for="p in pages"
                     :key="p"
                     type="button"
-                    @pointerdown="ripple.press($event, `page-${p}`)"
+                    v-ripple
                     @click="goToPage(p)"
                     class="relative flex items-center justify-center overflow-hidden rounded-full font-medium tabular-nums ring-1 ring-inset transition-colors"
                     :class="[
@@ -180,8 +177,6 @@ watch(() => props.loading, (busy) => {
                         <path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" stroke-width="3" stroke-linecap="round" />
                     </svg>
                     <template v-else>{{ p }}</template>
-
-                    <Ripples :items="ripple.on(`page-${p}`)" />
                 </button>
             </div>
 
@@ -189,7 +184,7 @@ watch(() => props.loading, (busy) => {
                 <button
                     type="button"
                     :disabled="currentPage >= lastPage"
-                    @pointerdown="ripple.press($event, 'next')"
+                    v-ripple
                     @click="goToPage(currentPage + 1)"
                     :aria-label="t('Next')"
                     :class="isNarrow ? 'h-7 w-7' : compact ? 'h-8 w-8' : 'h-9 w-9'"
@@ -198,13 +193,12 @@ watch(() => props.loading, (busy) => {
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" :class="isNarrow ? 'h-3.5 w-3.5' : 'h-4 w-4'">
                         <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
                     </svg>
-                    <Ripples :items="ripple.on('next')" />
                 </button>
 
                 <button
                     type="button"
                     :disabled="currentPage >= lastPage"
-                    @pointerdown="ripple.press($event, 'last')"
+                    v-ripple
                     @click="goToPage(lastPage)"
                     :aria-label="t('Last page')"
                     :class="isNarrow ? 'h-7 w-7' : compact ? 'h-8 w-8' : 'h-9 w-9'"
@@ -213,7 +207,6 @@ watch(() => props.loading, (busy) => {
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" :class="isNarrow ? 'h-3.5 w-3.5' : 'h-4 w-4'">
                         <path stroke-linecap="round" stroke-linejoin="round" d="m5.25 4.5 7.5 7.5-7.5 7.5M18 4.5v15" />
                     </svg>
-                    <Ripples :items="ripple.on('last')" />
                 </button>
             </div>
         </div>
