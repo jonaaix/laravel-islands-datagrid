@@ -260,16 +260,20 @@ defineExpose({ show, close, loadOptions, refresh });
                     :aria-expanded="open"
                     class="flex h-9 w-full items-center gap-1 rounded-md border border-gray-200 bg-white pl-2.5 pr-2 text-left text-sm transition-colors hover:bg-gray-50 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-white/10 dark:bg-gray-900 dark:hover:bg-white/5"
                 >
-                    <span v-if="segments.length" class="flex min-w-0 flex-1 flex-wrap items-center gap-x-1">
-                        <template v-for="(segment, i) in segments" :key="i">
-                            <span
-                                class="truncate"
-                                :class="i === segments.length - 1
-                                    ? 'text-gray-900 dark:text-gray-100'
-                                    : 'text-gray-500 dark:text-gray-400'"
-                            >{{ segment }}</span>
-                            <svg v-if="i < segments.length - 1" class="h-3 w-3 shrink-0 text-gray-300 dark:text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m9 5 7 7-7 7"/></svg>
-                        </template>
+                    <!-- One line inside a fixed height: the ancestors give way first, the picked
+                         segment is the value and holds its ground. -->
+                    <span v-if="segments.length" class="flex min-w-0 flex-1 items-center gap-x-1 overflow-hidden">
+                        <span
+                            v-if="segments.length > 1"
+                            class="flex min-w-0 shrink items-center gap-x-1 overflow-hidden text-gray-500 dark:text-gray-400"
+                        >
+                            <template v-for="(segment, i) in segments.slice(0, -1)" :key="i">
+                                <span class="truncate">{{ segment }}</span>
+                                <svg class="h-3 w-3 shrink-0 text-gray-300 dark:text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m9 5 7 7-7 7"/></svg>
+                            </template>
+                        </span>
+
+                        <span class="max-w-full shrink-0 truncate text-gray-900 dark:text-gray-100">{{ segments[segments.length - 1] }}</span>
                     </span>
                     <span v-else class="min-w-0 flex-1 truncate text-gray-400 dark:text-gray-500">{{ placeholder }}</span>
 
