@@ -54,6 +54,10 @@ const picked = computed(
 
 const path = computed(() => picked.value?.path ?? props.selectedPath ?? '');
 
+// Not `picked`: the options arrive with the first open, so until then a selection is known
+// only from the outside, and the clear button would be missing.
+const hasValue = computed(() => props.modelValue !== null && props.modelValue !== undefined && props.modelValue !== '');
+
 const segments = computed(() =>
     path.value.split(props.separator).map((part) => part.trim()).filter(Boolean),
 );
@@ -258,10 +262,9 @@ defineExpose({ show, close, loadOptions, refresh });
                     @click.stop="show()"
                     :disabled="disabled"
                     :aria-expanded="open"
-                    class="flex h-9 w-full items-center gap-1 rounded-md border border-gray-200 bg-white pl-2.5 pr-2 text-left text-sm transition-colors hover:bg-gray-50 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-white/10 dark:bg-gray-900 dark:hover:bg-white/5"
+                    class="flex h-9 w-full items-center gap-1 rounded-md border border-gray-200 bg-white pl-2.5 text-left text-sm transition-colors hover:bg-gray-50 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-white/10 dark:bg-gray-900 dark:hover:bg-white/5"
+                    :class="clearable && hasValue ? 'pr-8' : 'pr-2'"
                 >
-                    <!-- One line inside a fixed height: the ancestors give way first, the picked
-                         segment is the value and holds its ground. -->
                     <span v-if="segments.length" class="flex min-w-0 flex-1 items-center gap-x-1 overflow-hidden">
                         <span
                             v-if="segments.length > 1"
@@ -277,24 +280,26 @@ defineExpose({ show, close, loadOptions, refresh });
                     </span>
                     <span v-else class="min-w-0 flex-1 truncate text-gray-400 dark:text-gray-500">{{ placeholder }}</span>
 
-                    <svg v-if="!clearable || !picked" class="h-4 w-4 shrink-0 opacity-50 transition-transform" :class="open ? 'rotate-180' : ''" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <svg v-if="!clearable || !hasValue" class="h-4 w-4 shrink-0 opacity-50 transition-transform" :class="open ? 'rotate-180' : ''" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                         <path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
                     </svg>
                 </button>
 
-                <IconButton
-                    v-if="clearable && picked"
-                    :label="clearLabel"
-                    size="xs"
-                    tone="quiet"
-                    :tooltip="false"
-                    class="absolute inset-y-0 right-1.5 my-auto"
-                    @click.stop="clear()"
-                >
-                    <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                        <path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" />
-                    </svg>
-                </IconButton>
+                <!-- The wrapper carries the position: a class handed to IconButton lands on
+                     the button inside its tooltip span, not on what the layout sees. -->
+                <span v-if="clearable && hasValue" class="absolute inset-y-0 right-1.5 flex items-center">
+                    <IconButton
+                        :label="clearLabel"
+                        size="xs"
+                        tone="quiet"
+                        :tooltip="false"
+                        @click.stop="clear()"
+                    >
+                        <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" />
+                        </svg>
+                    </IconButton>
+                </span>
             </slot>
         </div>
 
