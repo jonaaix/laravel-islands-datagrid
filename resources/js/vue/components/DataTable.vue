@@ -30,7 +30,12 @@ const props = defineProps({
     floatingToolbar: { type: Boolean, default: false },
     floatingFooter: { type: Boolean, default: false },
     floatingBreakpoint: { type: String, default: '(min-width: 768px)' },
-    /** Room above the floating toolbar, for whatever sits at the top of the page. */
+    /**
+     * Room a floating bar keeps from the edge of the viewport. An application shell with a
+     * sticky header of its own sets `--table-float-top` (and `--table-float-bottom`) once,
+     * and every table below it reads that instead — a table cannot see what floats above it,
+     * and a bar that guesses ends up behind the header.
+     */
     floatTopOffset: { type: Number, default: 12 },
     floatBottomOffset: { type: Number, default: 12 },
 });
@@ -48,6 +53,14 @@ const footerUp = ref(false);
 const rail = ref({ left: 0, width: 0 });
 const toolbarHeight = ref(0);
 const footerHeight = ref(0);
+const topOffset = ref(props.floatTopOffset);
+const bottomOffset = ref(props.floatBottomOffset);
+
+function declaredOffset(styles, name, fallback) {
+    const declared = Number.parseFloat(styles.getPropertyValue(name));
+
+    return Number.isFinite(declared) ? declared : fallback;
+}
 
 const isTable = computed(() => props.mode !== 'cards' && props.mode !== 'list');
 const isCards = computed(() => props.mode === 'cards');
@@ -88,12 +101,19 @@ function measure() {
     toolbarHeight.value = toolbarBox.value?.offsetHeight || toolbarHeight.value;
     footerHeight.value = footerBox.value?.offsetHeight || footerHeight.value;
 
-    const top = props.floatTopOffset;
-    const bottom = viewport - props.floatBottomOffset;
+    const styles = getComputedStyle(card.value);
 
-    toolbarUp.value = props.floatingToolbar
+    topOffset.value = declaredOffset(styles, '--table-float-top', props.floatTopOffset);
+    bottomOffset.value = declaredOffset(styles, '--table-float-bottom', props.floatBottomOffset);
+
+    const top = topOffset.value;
+    const bottom = viewport - bottomOffset.value;
+
+    // A bar with nothing in it has nothing to keep on screen — a table without pagination
+    // renders no footer, and lifting the empty strip would put a blank pill over the rows.
+    toolbarUp.value = props.floatingToolbar && toolbarHeight.value > 0
         && box.top < top && box.bottom > top + toolbarHeight.value + MIN_VISIBLE;
-    footerUp.value = props.floatingFooter
+    footerUp.value = props.floatingFooter && footerHeight.value > 0
         && box.bottom > bottom && box.top < bottom - footerHeight.value - MIN_VISIBLE;
 }
 
@@ -143,13 +163,13 @@ const footer = lift(footerUp);
 const toolbarStyle = computed(() => ({
     left: `${rail.value.left}px`,
     width: `${rail.value.width}px`,
-    top: `${props.floatTopOffset}px`,
+    top: `${topOffset.value}px`,
 }));
 
 const footerStyle = computed(() => ({
     left: `${rail.value.left}px`,
     width: `${rail.value.width}px`,
-    bottom: `${props.floatBottomOffset}px`,
+    bottom: `${bottomOffset.value}px`,
 }));
 
 let cardObserver = null;

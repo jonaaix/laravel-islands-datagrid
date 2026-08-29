@@ -124,7 +124,14 @@ mode; sorting moves into the toolbar via `SortMenu` (below).
 
 `floatingToolbar` / `floatingFooter` lift toolbar and pagination into glass
 pills once they would leave the screen, while the page keeps its own scroll.
-Use them instead of turning the table into an inner scroll container.
+Reach for them instead of turning the table into an inner scroll container —
+but only for a bar that has something to keep on screen: `floatingFooter` says
+nothing in a view that does not paginate, and a bar that would come up empty
+stays down.
+
+An application shell with a sticky header of its own sets `--table-float-top`
+once (its height plus the gap); the bars read it, so no view has to know what
+floats above it.
 
 **`SearchInput`** — `modelValue`, `placeholder`, `clearLabel`; emits
 `update:modelValue` (→ `onSearchInput`) and `clear` (→ `clearSearch`).

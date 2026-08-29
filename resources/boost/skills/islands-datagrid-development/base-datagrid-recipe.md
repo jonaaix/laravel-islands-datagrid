@@ -208,6 +208,10 @@ visible-column count including conditional ones — it drives skeleton and empty
 - **The width comes from a helper, never from a class.** `useViewWidth()` (or
   `useFilterPanelDock`, which wraps it) on the island's root element. A list
   without a filter panel needs it just as much as one with.
+- **A floating bar is for a view that has one worth floating.** `floating-footer`
+  belongs to a view that paginates; a view that answers in one go floats
+  nothing. Switching a bar on because the recipe names it is how an empty pill
+  ends up over the rows.
 
 ## What already lives in the package
 
