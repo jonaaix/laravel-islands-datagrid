@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { Tooltip } from '@aaix/laravel-islands/vue/helpers';
 
 const props = defineProps({
@@ -59,18 +59,91 @@ const OPTION = {
         off: 'bg-transparent text-gray-500 ring-gray-200 hover:bg-gray-50 hover:text-gray-700 dark:text-gray-400 dark:ring-white/10 dark:hover:bg-white/5 dark:hover:text-gray-200',
     },
     segmented: {
-        base: 'inline-flex h-7 items-center gap-1.5 rounded-full px-2.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 active:bg-gray-200 dark:active:bg-white/15',
-        on: 'bg-white text-gray-900 shadow-sm ring-1 ring-gray-200 dark:bg-gray-800 dark:text-white dark:ring-white/10',
+        base: 'relative z-10 inline-flex h-7 items-center gap-1.5 rounded-full px-2.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500',
+        on: 'text-gray-900 dark:text-white',
         off: 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200',
+        surface: 'bg-white shadow-sm ring-1 ring-gray-200 dark:bg-gray-800 dark:ring-white/10',
     },
 };
 
 const skin = computed(() => OPTION[props.variant] ?? OPTION.pills);
 const frame = computed(() => FRAME[props.variant] ?? FRAME.pills);
+
+/*
+ * One frame, one answer: rather than lighting up a different segment, the surface travels to it.
+ * The movement is what says the two belong to the same question — a surface that blinks from
+ * here to there reads as two separate things.
+ *
+ * Only where a single answer is picked; with several switches on at once there is nothing for one
+ * surface to point at, so those keep their own.
+ */
+const slides = computed(() => props.variant === 'segmented' && !props.multiple);
+
+const stripEl = ref(null);
+const surface = ref({ x: 0, width: 0, shown: false, still: true });
+
+let watcher = null;
+
+function measure() {
+    const strip = stripEl.value;
+
+    if (!slides.value || strip === null) {
+        return;
+    }
+
+    const index = props.options.findIndex((option) => isTaken(option.value));
+    const button = index < 0 ? null : strip.querySelectorAll('button')[index];
+
+    if (!button || button.offsetWidth === 0) {
+        surface.value = { ...surface.value, shown: false, still: true };
+
+        return;
+    }
+
+    // The first placement must not travel in from the left edge.
+    const still = !surface.value.shown;
+
+    surface.value = { x: button.offsetLeft, width: button.offsetWidth, shown: true, still };
+
+    if (still) {
+        requestAnimationFrame(() => { surface.value = { ...surface.value, still: false }; });
+    }
+}
+
+function remeasure() {
+    nextTick(measure);
+}
+
+onMounted(() => {
+    remeasure();
+
+    if (window.ResizeObserver && stripEl.value) {
+        watcher = new ResizeObserver(remeasure);
+        watcher.observe(stripEl.value);
+    }
+});
+
+onBeforeUnmount(() => watcher?.disconnect());
+
+watch(() => [props.modelValue, props.options, props.variant], remeasure, { deep: true });
 </script>
 
 <template>
-    <div class="option-strip" :class="frame" :role="multiple ? 'group' : 'radiogroup'" :aria-label="ariaLabel || undefined">
+    <div
+        ref="stripEl"
+        class="option-strip"
+        :class="[frame, slides ? 'relative' : '']"
+        :role="multiple ? 'group' : 'radiogroup'"
+        :aria-label="ariaLabel || undefined"
+    >
+        <span
+            v-if="slides && surface.shown"
+            aria-hidden="true"
+            class="absolute inset-y-0.5 rounded-full motion-reduce:transition-none"
+            :class="[skin.surface, surface.still ? '' : 'transition-[transform,width] duration-200 ease-out']"
+            :style="{ transform: `translateX(${surface.x}px)`, width: `${surface.width}px`, left: 0 }"
+        ></span>
+
         <template v-for="option in options" :key="String(option.value)">
             <Tooltip v-if="option.hideLabel" :text="option.label">
                 <button
@@ -80,7 +153,7 @@ const frame = computed(() => FRAME[props.variant] ?? FRAME.pills);
                     :aria-checked="multiple ? undefined : (isTaken(option.value) ? 'true' : 'false')"
                     :aria-label="option.label"
                     :role="multiple ? undefined : 'radio'"
-                    :class="[skin.base, isTaken(option.value) ? skin.on : skin.off, disabled ? 'cursor-not-allowed opacity-50' : '', option.icon ? 'px-2' : '']"
+                    :class="[skin.base, isTaken(option.value) ? skin.on : skin.off, !slides && isTaken(option.value) ? skin.surface ?? '' : '', disabled ? 'cursor-not-allowed opacity-50' : '', option.icon ? 'px-2' : '']"
                     @click="pick(option.value)"
                 >
                     <component :is="option.icon" v-if="option.icon" class="h-4 w-4 shrink-0" />
@@ -95,7 +168,7 @@ const frame = computed(() => FRAME[props.variant] ?? FRAME.pills);
                 :aria-pressed="multiple ? (isTaken(option.value) ? 'true' : 'false') : undefined"
                 :aria-checked="multiple ? undefined : (isTaken(option.value) ? 'true' : 'false')"
                 :role="multiple ? undefined : 'radio'"
-                :class="[skin.base, isTaken(option.value) ? skin.on : skin.off, disabled ? 'cursor-not-allowed opacity-50' : '']"
+                :class="[skin.base, isTaken(option.value) ? skin.on : skin.off, !slides && isTaken(option.value) ? skin.surface ?? '' : '', disabled ? 'cursor-not-allowed opacity-50' : '']"
                 @click="pick(option.value)"
             >
                 <span
