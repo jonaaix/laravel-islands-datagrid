@@ -122,6 +122,23 @@ package's neutral defaults.
 
 ### Template shape
 
+**The outermost element of the island carries the view width — always.**
+
+```js
+const { root, rootStyle } = useViewWidth();
+```
+```html
+<div ref="root" class="mx-auto w-full" :style="rootStyle">
+```
+
+`useViewWidth()` owns the one maximum every list in the app shares and publishes
+`--table-toolbar-h`, which the sticky toolbar, a docked panel and the floating
+bars all measure against. A view that writes its own `max-w-*` class or a literal
+width runs wider than every other list and leaves the toolbar without a height.
+
+A view with a `FilterPanel` calls `useFilterPanelDock` instead: it returns the
+same `root` and `rootStyle`, and widens them while the panel is docked.
+
 Around the `<DataTable>`: page header, `<Tabs>` (tab is a filter, not a column),
 `<FilterPanel>` beside it via `useFilterPanelDock`.
 
@@ -188,13 +205,17 @@ visible-column count including conditional ones — it drives skeleton and empty
   the server owns the truth (`preferencesUrl` in the props).
 - **Ship the empty state and the skeleton on day one.** They are not polish; a
   filter that matched nothing needs to say so.
+- **The width comes from a helper, never from a class.** `useViewWidth()` (or
+  `useFilterPanelDock`, which wraps it) on the island's root element. A list
+  without a filter panel needs it just as much as one with.
 
 ## What already lives in the package
 
 Do not rewrite these — see `helpers-index.md` for the full inventory:
 
 `DataTable`, `useDataTable`, `SearchInput`, `Combobox`/`MultiSelect`/`TreeSelect`,
-`OptionStrip`, `SortButton`/`SortMenu`, `ColumnPicker`, `FilterPanel` +
-`useFilterPanelDock`, `ViewProfileMenu` + `useViewProfiles`, `useAutoMobileMode`,
+`OptionStrip`, `SortButton`/`SortMenu`, `ColumnPicker`, `useViewWidth`,
+`FilterPanel` + `useFilterPanelDock`, `ViewProfileMenu` + `useViewProfiles`,
+`useAutoMobileMode`,
 `GridCard`/`GridCardMedia`, `SelectionBox` + `useSelection`, `httpClient` /
 `sendJson`; PHP: `HandlesViewProfiles`, `ViewProfileStore`, `ViewProfileSchema`.

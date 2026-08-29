@@ -142,6 +142,13 @@ deep-linked selection outside that page shows the placeholder.
 neutral, `filter` and `filter-card` tint a set value. A picker inside a form
 must not look like an active filter, so only filters opt in.
 
+**`useViewWidth()`** — returns `root` and `rootStyle` for the island's outermost
+element. It holds the one width every list in the app shares and publishes
+`--table-toolbar-h` for the sticky toolbar and the floating bars. Bind it on
+every list view; never write a `max-w-*` class instead. A view with a
+`FilterPanel` uses `useFilterPanelDock`, which returns the same two and widens
+them while the panel is docked.
+
 For everything else the package exports — `FilterPanel`, `TreeSelect`,
 `MultiSelect`, `OptionStrip`, `ColumnPicker`, `SortButton`, `SortMenu`,
 `GridCard`, `Pagination`, `useViewProfiles`, `useAutoMobileMode`,

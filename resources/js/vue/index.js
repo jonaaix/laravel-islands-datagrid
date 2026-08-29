@@ -27,5 +27,6 @@ export { useSelection } from './composables/useSelection.js';
 export { useViewProfiles } from './composables/useViewProfiles.js';
 export { useAutoMobileMode } from './composables/useAutoMobileMode.js';
 export { useFilterPanelDock } from './composables/useFilterPanelDock.js';
+export { useViewWidth, VIEW_BASE_WIDTH, VIEW_TOOLBAR_HEIGHT } from './composables/useViewWidth.js';
 export { provideDatagrid, useDatagrid } from './context.js';
 export { createHttpClient, httpClient, sendJson } from './http.js';

@@ -1,8 +1,7 @@
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
+import { useViewWidth, VIEW_BASE_WIDTH } from './useViewWidth.js';
 
-const DEFAULT_BASE_WIDTH = 1536;
 const DEFAULT_PANEL_WIDTH = 320;
-const TOOLBAR_HEIGHT = '61px';
 
 /**
  * Dock-vs-float logic for a filter panel beside a data table.
@@ -10,6 +9,9 @@ const TOOLBAR_HEIGHT = '61px';
  * The panel sits next to the table when the viewport is wide enough, and floats
  * over a backdrop when it is not. The page widens to make room when docked, so
  * the table never shrinks. Whether the panel is open is remembered per browser.
+ *
+ * The view's own width comes from `useViewWidth` — a list without a filter panel calls that
+ * one directly and gets the same maximum.
  *
  * @param {string} storageKey  localStorage key for the open/closed state.
  * @param {object} [options]
@@ -20,14 +22,14 @@ const TOOLBAR_HEIGHT = '61px';
  * @returns {{ root, filtersOpen, panelRendered, docked, rootStyle, headerStyle, toggleFilters }}
  */
 export function useFilterPanelDock(storageKey, options = {}) {
-    const { baseWidth = DEFAULT_BASE_WIDTH, panelWidth = DEFAULT_PANEL_WIDTH, enabled = null } = options;
+    const { baseWidth = VIEW_BASE_WIDTH, panelWidth = DEFAULT_PANEL_WIDTH, enabled = null } = options;
 
     const panelReserve = panelWidth + 16;
 
     const filtersOpen = ref(window.localStorage?.getItem(storageKey) === '1');
-    const root = ref(null);
-    const availableWidth = ref(0);
-    let resizeObserver = null;
+    const extraWidth = ref(0);
+
+    const { root, rootStyle, availableWidth } = useViewWidth({ baseWidth, extraWidth });
 
     function toggleFilters() {
         filtersOpen.value = !filtersOpen.value;
@@ -54,25 +56,11 @@ export function useFilterPanelDock(storageKey, options = {}) {
 
     const docked = computed(() => panelRendered.value && isEnabled() && availableWidth.value >= baseWidth + panelReserve);
 
-    const rootStyle = computed(() => ({
-        maxWidth: `${docked.value ? baseWidth + panelReserve : baseWidth}px`,
-        '--table-toolbar-h': TOOLBAR_HEIGHT,
-    }));
+    watch(docked, (isDocked) => {
+        extraWidth.value = isDocked ? panelReserve : 0;
+    }, { immediate: true });
 
     const headerStyle = computed(() => (docked.value ? { maxWidth: `calc(100% - ${panelReserve}px)` } : {}));
-
-    onMounted(() => {
-        const container = root.value?.parentElement;
-        if (container && window.ResizeObserver) {
-            resizeObserver = new ResizeObserver(([entry]) => {
-                availableWidth.value = entry.contentRect.width;
-            });
-            resizeObserver.observe(container);
-        }
-        availableWidth.value = container?.clientWidth ?? 0;
-    });
-
-    onBeforeUnmount(() => resizeObserver?.disconnect());
 
     return { root, filtersOpen, panelRendered, docked, rootStyle, headerStyle, toggleFilters };
 }
