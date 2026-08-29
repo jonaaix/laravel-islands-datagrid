@@ -112,7 +112,8 @@ client-only change (columns, card size) becomes deep-linkable.
 `skeletonBarClass`, `floatingToolbar`, `floatingFooter`, `floatTopOffset`
 (`12`), `floatBottomOffset` (`12`), `mode` (`'table'` | `'cards'`, default
 `'table'`), `cardsMinWidth` (`'260px'`), `cardsGap` (`'0.75rem'`),
-`cardSkeletonHeight` (`'240px'`), `cardSkeletonCount` (`8`); emits `retry`,
+`cardSkeletonHeight` (`'240px'`), `cardSkeletonCount` (`8`), `fixedHeight`
+(`false`); emits `retry`,
 `page-change`, `per-page-change`; slots `toolbar`, `head`, default, `cards`,
 `empty`. Extra classes land on the card. Set `--table-toolbar-h` on an
 ancestor to pin the toolbar height.
@@ -132,6 +133,16 @@ stays down.
 An application shell with a sticky header of its own sets `--table-float-top`
 once (its height plus the gap); the bars read it, so no view has to know what
 floats above it.
+
+**`fixedHeight`** is the other answer to the same question, for a table that
+lives in a region of a set size rather than on a page that scrolls. It gives the
+card a height of its own and lets the rows scroll inside it: toolbar above,
+column header stuck to the top of the scroll region, pagination below, all three
+always on screen. `true` takes the room left below the card's own top edge (so
+the table ends at the bottom of the window); a CSS length or a number of pixels
+sets it outright, which is how two tables share one screen at `45vh` each. The
+floating bars switch themselves off — a table that never leaves the screen has
+nothing to lift. Off by default: a list normally scrolls with its page.
 
 **`SearchInput`** — `modelValue`, `placeholder`, `clearLabel`; emits
 `update:modelValue` (→ `onSearchInput`) and `clear` (→ `clearSearch`).

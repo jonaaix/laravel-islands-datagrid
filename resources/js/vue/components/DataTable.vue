@@ -24,6 +24,14 @@ const props = defineProps({
     listSkeletonCount: { type: Number, default: 10 },
     bleed: { type: Boolean, default: false },
     /**
+     * Give the table a height of its own and let the rows scroll inside it, with the toolbar
+     * above and the pagination below both staying put. `true` takes the room left on the
+     * screen below the table's own top edge; a CSS length or a number of pixels sets it
+     * outright, which is how two tables share one screen. Off by default: a list normally
+     * scrolls with the page it sits on.
+     */
+    fixedHeight: { type: [Boolean, String, Number], default: false },
+    /**
      * Toolbar and pagination lift off and hover over the rows once they would leave the
      * screen — the page itself keeps scrolling as it always did.
      */
@@ -83,7 +91,27 @@ function onFloatingMediaChange(event) {
     }
 }
 
-const floats = computed(() => (props.floatingToolbar || props.floatingFooter) && floatingAllowed.value);
+const fits = computed(() => props.fixedHeight !== false && props.fixedHeight !== '');
+
+const measuredHeight = ref(null);
+
+/** Never worth scrolling in: below this a fixed height shows less than it hides. */
+const MIN_FIT_HEIGHT = 240;
+
+const fitStyle = computed(() => {
+    if (!fits.value) {
+        return {};
+    }
+
+    if (props.fixedHeight === true) {
+        return measuredHeight.value === null ? {} : { height: `${measuredHeight.value}px` };
+    }
+
+    return { height: typeof props.fixedHeight === 'number' ? `${props.fixedHeight}px` : props.fixedHeight };
+});
+
+// A table that never leaves the screen has nothing to lift.
+const floats = computed(() => !fits.value && (props.floatingToolbar || props.floatingFooter) && floatingAllowed.value);
 
 let frame = null;
 
@@ -115,6 +143,17 @@ function measure() {
         && box.top < top && box.bottom > top + toolbarHeight.value + MIN_VISIBLE;
     footerUp.value = props.floatingFooter && footerHeight.value > 0
         && box.bottom > bottom && box.top < bottom - footerHeight.value - MIN_VISIBLE;
+}
+
+function measureFit() {
+    if (props.fixedHeight !== true || !card.value) {
+        return;
+    }
+
+    const gap = declaredOffset(getComputedStyle(card.value), '--table-float-bottom', props.floatBottomOffset);
+    const top = card.value.getBoundingClientRect().top + window.scrollY;
+
+    measuredHeight.value = Math.max(MIN_FIT_HEIGHT, window.innerHeight - top - gap);
 }
 
 function onViewportChange() {
@@ -175,6 +214,11 @@ const footerStyle = computed(() => ({
 let cardObserver = null;
 
 onMounted(() => {
+    if (fits.value) {
+        measureFit();
+        window.addEventListener('resize', measureFit);
+    }
+
     if (!(props.floatingToolbar || props.floatingFooter)) {
         return;
     }
@@ -198,6 +242,7 @@ onMounted(() => {
 });
 
 onBeforeUnmount(() => {
+    window.removeEventListener('resize', measureFit);
     window.removeEventListener('scroll', onViewportChange);
     window.removeEventListener('resize', onViewportChange);
     floatingMedia?.removeEventListener?.('change', onFloatingMediaChange);
@@ -210,7 +255,11 @@ onBeforeUnmount(() => {
     <div
         ref="card"
         class="overflow-hidden bg-white dark:bg-gray-900"
-        :class="bleed ? '' : 'rounded-xl ring-1 ring-gray-200 dark:ring-white/10'"
+        :class="[
+            bleed ? '' : 'rounded-xl ring-1 ring-gray-200 dark:ring-white/10',
+            fits ? 'flex flex-col' : '',
+        ]"
+        :style="fitStyle"
     >
         <!--
             Toolbar and pagination stay exactly where they are and keep their space. The
@@ -243,9 +292,10 @@ onBeforeUnmount(() => {
         </div>
 
         <!-- Table body -->
-        <div v-if="isTable" class="overflow-x-auto">
+        <div v-if="isTable" class="overflow-x-auto" :class="fits ? 'min-h-0 flex-1 overflow-y-auto' : ''">
             <table class="min-w-full text-sm" :aria-busy="loading">
-                <thead>
+                <!-- The header keeps the rows out from under it: the tint alone is see-through. -->
+                <thead :class="fits ? 'sticky top-0 z-10 bg-white dark:bg-gray-900' : ''">
                     <tr class="border-b border-gray-200 bg-gray-50 text-left whitespace-nowrap dark:border-white/10 dark:bg-white/5">
                         <slot name="head" />
                     </tr>
@@ -271,7 +321,7 @@ onBeforeUnmount(() => {
         </div>
 
         <!-- Cards body -->
-        <div v-else-if="isCards" class="p-3" :aria-busy="loading">
+        <div v-else-if="isCards" class="p-3" :class="fits ? 'min-h-0 flex-1 overflow-y-auto' : ''" :aria-busy="loading">
             <template v-if="loading && rows.length === 0">
                 <div
                     class="grid"
@@ -306,7 +356,7 @@ onBeforeUnmount(() => {
         </div>
 
         <!-- List body -->
-        <div v-else-if="isList" :aria-busy="loading">
+        <div v-else-if="isList" :class="fits ? 'min-h-0 flex-1 overflow-y-auto' : ''" :aria-busy="loading">
             <template v-if="loading && rows.length === 0">
                 <div class="divide-y divide-gray-100 dark:divide-white/5">
                     <div
