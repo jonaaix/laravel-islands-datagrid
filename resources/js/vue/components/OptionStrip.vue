@@ -80,9 +80,13 @@ const frame = computed(() => FRAME[props.variant] ?? FRAME.pills);
 const slides = computed(() => props.variant === 'segmented' && !props.multiple);
 
 const stripEl = ref(null);
-const surface = ref({ x: 0, width: 0, shown: false, still: true });
+const surface = ref({ x: 0, width: 0, shown: false, still: true, moving: false });
+
+// Long enough to be felt, short enough that nobody waits for it.
+const TRAVEL_MS = 260;
 
 let watcher = null;
+let settle = null;
 
 function measure() {
     const strip = stripEl.value;
@@ -95,18 +99,25 @@ function measure() {
     const button = index < 0 ? null : strip.querySelectorAll('button')[index];
 
     if (!button || button.offsetWidth === 0) {
-        surface.value = { ...surface.value, shown: false, still: true };
+        surface.value = { ...surface.value, shown: false, still: true, moving: false };
 
         return;
     }
 
     // The first placement must not travel in from the left edge.
     const still = !surface.value.shown;
+    const moves = !still && surface.value.x !== button.offsetLeft;
 
-    surface.value = { x: button.offsetLeft, width: button.offsetWidth, shown: true, still };
+    surface.value = { x: button.offsetLeft, width: button.offsetWidth, shown: true, still, moving: moves };
 
     if (still) {
         requestAnimationFrame(() => { surface.value = { ...surface.value, still: false }; });
+    }
+
+    if (moves) {
+        // Stretched while under way, round again on arrival — a hint of a bubble, no bounce house.
+        window.clearTimeout(settle);
+        settle = window.setTimeout(() => { surface.value = { ...surface.value, moving: false }; }, TRAVEL_MS * 0.55);
     }
 }
 
@@ -123,7 +134,10 @@ onMounted(() => {
     }
 });
 
-onBeforeUnmount(() => watcher?.disconnect());
+onBeforeUnmount(() => {
+    watcher?.disconnect();
+    window.clearTimeout(settle);
+});
 
 watch(() => [props.modelValue, props.options, props.variant], remeasure, { deep: true });
 </script>
@@ -139,9 +153,16 @@ watch(() => [props.modelValue, props.options, props.variant], remeasure, { deep:
         <span
             v-if="slides && surface.shown"
             aria-hidden="true"
-            class="absolute inset-y-0.5 rounded-full motion-reduce:transition-none"
-            :class="[skin.surface, surface.still ? '' : 'transition-[transform,width] duration-200 ease-out']"
-            :style="{ transform: `translateX(${surface.x}px)`, width: `${surface.width}px`, left: 0 }"
+            class="absolute inset-y-0.5 origin-center rounded-full motion-reduce:transition-none motion-reduce:scale-100"
+            :class="[
+                skin.surface,
+                surface.still ? '' : 'transition-[transform,width] duration-[260ms] [transition-timing-function:cubic-bezier(0.34,1.32,0.64,1)]',
+            ]"
+            :style="{
+                transform: `translateX(${surface.x}px) scaleX(${surface.moving ? 1.06 : 1}) scaleY(${surface.moving ? 0.94 : 1})`,
+                width: `${surface.width}px`,
+                left: 0,
+            }"
         ></span>
 
         <template v-for="option in options" :key="String(option.value)">
