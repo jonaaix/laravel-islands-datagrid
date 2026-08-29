@@ -8,8 +8,6 @@ export { default as SearchInput } from './components/SearchInput.vue';
 export { default as SelectionBox } from './components/SelectionBox.vue';
 export { default as SortButton } from './components/SortButton.vue';
 export { default as SortMenu } from './components/SortMenu.vue';
-export { default as GridCard } from './components/GridCard.vue';
-export { default as GridCardMedia } from './components/GridCardMedia.vue';
 
 export {
     IconChevronRight,
