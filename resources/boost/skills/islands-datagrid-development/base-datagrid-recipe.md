@@ -167,6 +167,94 @@ Toolbar slot, in order:
 `IconButton` with an `activeFilterCount` badge · `OptionStrip` for
 table/cards mode.
 
+### The toolbar with no room
+
+That row is seven or eight controls wide. Given 1536px it reads as one line;
+given 390px it wraps into three stacked rows and pushes the first record below
+the fold — the reader now scrolls past the controls to reach what they came
+for. Narrow, the toolbar collapses to **one row of four icons**: a search
+toggle on the left, and the cluster that was already icons on the right.
+Everything that is not an icon leaves.
+
+**Search collapses to its icon and comes back as a row of its own.**
+
+```html
+<IconButton
+    class="sm:hidden" :label="t('Search')" size="lg"
+    :tone="searchOpen ? 'active' : 'quiet'" :tooltip="false"
+    @click="toggleSearch">
+    <IconSearch />
+</IconButton>
+
+<SearchInput
+    ref="searchInputRef"
+    class="max-sm:order-1 max-sm:basis-full"
+    :class="!searchOpen && 'max-sm:hidden'"
+    :model-value="state.q" @update:model-value="onSearchInput" @clear="clearSearch()" />
+```
+
+```js
+function toggleSearch() {
+    searchOpen.value = !searchOpen.value;
+
+    if (searchOpen.value) {
+        nextTick(() => searchInputRef.value?.focus());
+    }
+}
+```
+
+`basis-full` gives the field the whole row and `order-1` puts that row *under*
+the icons, so the controls keep their place instead of being pushed down by a
+field that appeared above them. The focus on open saves the second tap, and the
+toggle tints while the field is out — otherwise the toolbar looks like it grew
+by itself.
+
+**The standard filters go to the panel; they do not wrap.** Every filter
+`Combobox` and the quick-filter strip carry `max-sm:hidden`. A toolbar that
+wraps its filters onto two more rows has not been made mobile, it has been made
+taller.
+
+**The panel becomes the only filter surface, so it gains tabs.** Docked, the
+panel holds the advanced filters and the toolbar holds the standard ones.
+Narrow, both sets live in the panel and have to be told apart:
+
+```js
+const filterTab = ref('standard');
+const activeFilterTab = computed(() => (isNarrow.value ? filterTab.value : 'advanced'));
+```
+```html
+<FilterPanel …>
+    <template v-if="isNarrow" #tabs>
+        <Tabs :items="filterTabs" :model-value="filterTab" @update:model-value="filterTab = $event" />
+    </template>
+```
+
+The strip exists only while the panel carries both sets. On the docked panel it
+would name a distinction that is not there.
+
+**The view-mode strip goes** (`max-sm:hidden`). `useAutoMobileMode` has already
+decided the mode from the screen; a switch beside it offers a choice the view
+overrules on the next resize.
+
+**Sort, views, columns and the filter toggle stay** — they are already icons at
+`size="lg"`, the 36px every toolbar control shares, and four of them fit a
+390px row with the search toggle. The filter badge keeps a
+`ring-2 ring-white dark:ring-gray-900`: a count that sits half over its icon and
+half over the toolbar has to separate itself from both.
+
+**The rows bleed.** `-mx-4` on the `<DataTable>` plus `:bleed="true"` drop the
+card's rounding, ring and side padding, so a 390px screen spends all 390 on
+content.
+
+**What counts as "narrow" is one number, not two.** `max-sm:` utilities see the
+viewport at 640px; `useAutoMobileMode` sees it at 767px; `useViewWidth()`
+returns `availableWidth`, the room the view actually has — which is the honest
+measure, because a folded-out sidebar and a zoomed page take room away exactly
+as a smaller screen does. Prefer that one and drive the template with `v-if` and
+`:class`, the same way a dropped column is decided. Where `max-sm:` is used
+anyway, hold the JS breakpoint to the same number: a window between the two
+hands out list rows with a desktop toolbar sitting above them.
+
 Head slot: one `<th>` per visible column; sortable ones wrap `<SortButton>`.
 
 Body: `<RecordRow v-for="row in rows" :row="row" :columns="visibleColumns" />`.
@@ -208,6 +296,9 @@ visible-column count including conditional ones — it drives skeleton and empty
 - **The width comes from a helper, never from a class.** `useViewWidth()` (or
   `useFilterPanelDock`, which wraps it) on the island's root element. A list
   without a filter panel needs it just as much as one with.
+- **The toolbar is the first thing that breaks with no room.** One row of four
+  icons, filters in the panel, the search field as its own row below — not the
+  same eight controls wrapped onto three lines. See *The toolbar with no room*.
 - **A floating bar is for a view that has one worth floating.** `floating-footer`
   belongs to a view that paginates; a view that answers in one go floats
   nothing. Switching a bar on because the recipe names it is how an empty pill

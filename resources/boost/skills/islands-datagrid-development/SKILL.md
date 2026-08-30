@@ -160,6 +160,11 @@ deep-linked selection outside that page shows the placeholder.
 neutral, `filter` and `filter-card` tint a set value. A picker inside a form
 must not look like an active filter, so only filters opt in.
 
+**On a narrow screen the toolbar collapses rather than wraps** — one row of four
+icons, the search field as a row of its own below it, every filter in the
+`FilterPanel`. `base-datagrid-recipe.md` carries the shape under *The toolbar
+with no room*; `useAutoMobileMode` switches the rows to list mode alongside it.
+
 **`useViewWidth()`** — returns `root` and `rootStyle` for the island's outermost
 element. It holds the one width every list in the app shares and publishes
 `--table-toolbar-h` for the sticky toolbar and the floating bars. Bind it on
