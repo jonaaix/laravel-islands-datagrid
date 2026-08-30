@@ -428,8 +428,10 @@ onBeforeUnmount(() => {
 .floating-bar {
     border-radius: 9999px;
     background-color: rgb(255 255 255 / 0.8);
-    backdrop-filter: blur(28px) saturate(180%);
+    /* Prefixed first: the minifier keeps the last of the pair, and the standard one is what
+       every browser but Safari reads. The other way round the blur is gone from the build. */
     -webkit-backdrop-filter: blur(28px) saturate(180%);
+    backdrop-filter: blur(28px) saturate(180%);
     box-shadow:
         0 0 0 1px rgb(0 0 0 / 0.08),
         0 4px 12px -2px rgb(0 0 0 / 0.26),
