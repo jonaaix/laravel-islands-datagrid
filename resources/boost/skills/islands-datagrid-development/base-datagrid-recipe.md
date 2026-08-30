@@ -246,6 +246,23 @@ half over the toolbar has to separate itself from both.
 card's rounding, ring and side padding, so a 390px screen spends all 390 on
 content.
 
+**The tab strip above the table loses its words, not its tabs.** Four labelled
+scopes with counts run past a phone screen. Letting the strip scroll is the
+documented fallback, but it hides how many scopes there are and can leave the
+chosen one off-screen. Give the word to the chosen tab and let the rest keep
+their icon and their count — all of them stay on screen, and switching is still
+one tap:
+
+```html
+<span :class="narrow && state.tab !== tab.key ? 'sr-only' : ''">{{ tab.label }}</span>
+```
+
+`sr-only` rather than `v-if`, so the word is still there for anything reading
+the page aloud, and — being out of flow — it does not leave a gap behind.
+Tighten the tab padding to `px-2` in the same breath; at `px-3` the widest scope
+pushes the last counter past the edge. This holds to about five scopes; beyond
+that the strip belongs in a menu that names the current one.
+
 **What counts as "narrow" is one number, not two.** `max-sm:` utilities see the
 viewport at 640px; `useAutoMobileMode` sees it at 767px; `useViewWidth()`
 returns `availableWidth`, the room the view actually has — which is the honest
