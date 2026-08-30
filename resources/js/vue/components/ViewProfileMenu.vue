@@ -1,6 +1,6 @@
 <script setup>
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue';
-import { FieldCaption, IconButton, Popover } from '@aaix/laravel-islands/vue/helpers';
+import { FieldCaption, IconButton, Popover, Tooltip } from '@aaix/laravel-islands/vue/helpers';
 import { useDatagrid } from '../context.js';
 import IconStar from '../icons/IconStar.vue';
 import IconViews from '../icons/IconViews.vue';
@@ -137,11 +137,17 @@ const ITEM_CLASS = 'flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm
             >
                 <IconViews class="h-4 w-4 shrink-0 opacity-70" />
 
-                <slot name="label" :name="active.name">
-                    <span class="min-w-0 truncate">{{ active.name }}</span>
-                </slot>
+                <!-- The mark sits against the name the way an editor writes it, so it reads as
+                     belonging to this view rather than as a second control beside it. -->
+                <span class="flex min-w-0 items-center">
+                    <slot name="label" :name="active.name">
+                        <span class="min-w-0 truncate">{{ active.name }}</span>
+                    </slot>
 
-                <span v-if="changed" class="shrink-0 text-[10px] font-medium uppercase tracking-wide opacity-70">{{ text.changed }}</span>
+                    <Tooltip v-if="changed" :text="text.changed">
+                        <span class="shrink-0 pl-0.5 text-base leading-none" :aria-label="text.changed">*</span>
+                    </Tooltip>
+                </span>
             </button>
 
             <IconButton
