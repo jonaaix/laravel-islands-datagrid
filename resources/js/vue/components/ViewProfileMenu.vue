@@ -1,6 +1,6 @@
 <script setup>
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue';
-import { FieldCaption, IconButton } from '@aaix/laravel-islands/vue/helpers';
+import { FieldCaption, IconButton, Popover } from '@aaix/laravel-islands/vue/helpers';
 import { useDatagrid } from '../context.js';
 import IconStar from '../icons/IconStar.vue';
 import IconViews from '../icons/IconViews.vue';
@@ -25,7 +25,6 @@ const naming = ref(false);
 const draft = ref('');
 const triggerEl = ref(null);
 const nameInput = ref(null);
-const menuStyle = ref({});
 
 const text = computed(() => ({
     menu: props.labels.menu || t('Views'),
@@ -51,22 +50,9 @@ const saveLabel = computed(() => (props.active ? text.value.saveAsNew : text.val
 
 const canSave = computed(() => (props.active ? shared.value || props.changed : props.dirty));
 
-function updatePosition() {
-    const box = triggerEl.value?.getBoundingClientRect();
-
-    if (box) {
-        menuStyle.value = { top: `${box.bottom + 4}px`, right: `${Math.max(8, window.innerWidth - box.right)}px` };
-    }
-}
-
 function toggle() {
     open.value = !open.value;
     naming.value = false;
-
-    if (open.value) {
-        updatePosition();
-        nextTick(updatePosition);
-    }
 }
 
 function close() {
@@ -108,29 +94,17 @@ function pick(profile) {
     close();
 }
 
+// The panel is not focused when it opens, so Escape has to be caught on the window rather
+// than on the panel itself.
 function onKeydown(event) {
     if (event.key === 'Escape' && open.value) {
         close();
     }
 }
 
-function onViewportChange() {
-    if (open.value) {
-        updatePosition();
-    }
-}
+onMounted(() => window.addEventListener('keydown', onKeydown));
 
-onMounted(() => {
-    window.addEventListener('keydown', onKeydown);
-    window.addEventListener('scroll', onViewportChange, { passive: true });
-    window.addEventListener('resize', onViewportChange);
-});
-
-onBeforeUnmount(() => {
-    window.removeEventListener('keydown', onKeydown);
-    window.removeEventListener('scroll', onViewportChange);
-    window.removeEventListener('resize', onViewportChange);
-});
+onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
 
 const ITEM_CLASS = 'flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-gray-700'
     + ' transition-colors hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-white/5';
@@ -184,14 +158,10 @@ const ITEM_CLASS = 'flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm
             </IconButton>
         </div>
 
-        <Teleport to="body">
-            <div v-if="open" class="fixed inset-0 z-[60]" @click="close()"></div>
-
-            <div
-                v-if="open"
-                class="fixed z-[61] w-max min-w-[13rem] max-w-[22rem] overflow-hidden rounded-lg bg-white shadow-lg ring-1 ring-gray-200 dark:bg-gray-800 dark:ring-white/10"
-                :style="menuStyle"
-            >
+        <!-- The width comes from the longest view name, so the panel is left to shrink to
+             its content instead of being given one. -->
+        <Popover :anchor="triggerEl" :open="open" :width="null" @close="close()">
+            <div class="w-max min-w-[13rem] max-w-[22rem]">
                 <template v-if="naming">
                     <div class="p-2">
                         <input
@@ -271,6 +241,6 @@ const ITEM_CLASS = 'flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm
 
                 </template>
             </div>
-        </Teleport>
+        </Popover>
     </div>
 </template>
