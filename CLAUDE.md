@@ -146,7 +146,7 @@ PHP >= 8.5, Laravel >= 13.x, Filament >= 5.x, Livewire, Alpine.js, Tailwind CSS 
     2. Structural dividers in very long code files (e.g.: // ----- Step: 1: Doing X ... -----, // ----- Step: 2: Doing Y ... -----) => Single line comment
     3. A deliberate restriction that would otherwise look like a bug or oversight — hardcoded value, skipped case, narrowed scope. State why, never what. => Single line comment
     4. Array shapes / generics that PHP types cannot express. => Docblock
-- Comments in code the user wrote stay untouched. Comments you wrote in an earlier turn are yours to remove.
+- Existing comments stay, unless they are neither necessary under the rules above nor a marker (`TODO`, `NOTE`, …) or tool directive.
 - `*_id` is always an internal FK. Any other reference uses `*_ref`.
 - Jobs must be suffixed with `Job`.
 - Enums must be suffixed with `Enum`.
@@ -182,6 +182,7 @@ PHP >= 8.5, Laravel >= 13.x, Filament >= 5.x, Livewire, Alpine.js, Tailwind CSS 
 - When troubleshooting, read the log and reproduce (Tinker, test, or route) before proposing a cause. Don't guess.
 - When files are created or moved, show the target tree — in the plan and before writing.
 - Prefer MCP over shell execution when both can do it.
+- Create your own test user `Claude` / `claude` if you need app access.
 
 ### Git
 - **Commits at feature boundaries.** One commit per feature, never per file or per edit. An uncommitted prior feature stays its own unit.
