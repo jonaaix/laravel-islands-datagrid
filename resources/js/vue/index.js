@@ -27,6 +27,8 @@ export { useSelection } from './composables/useSelection.js';
 export { useViewProfiles } from './composables/useViewProfiles.js';
 export { useAutoMobileMode } from './composables/useAutoMobileMode.js';
 export { useFilterPanelDock } from './composables/useFilterPanelDock.js';
-export { useViewWidth, VIEW_BASE_WIDTH, VIEW_TOOLBAR_HEIGHT } from './composables/useViewWidth.js';
+// The width belongs to every island, not only to one with a table, so it lives in the base
+// package. Re-exported here because a list view reaches for it alongside the table imports.
+export { useViewWidth, VIEW_BASE_WIDTH, VIEW_TOOLBAR_HEIGHT } from '@aaix/laravel-islands/vue';
 export { provideDatagrid, useDatagrid } from './context.js';
 export { createHttpClient, httpClient, sendJson } from './http.js';

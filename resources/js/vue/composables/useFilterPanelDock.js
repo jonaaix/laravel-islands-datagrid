@@ -1,5 +1,5 @@
 import { computed, ref, watch } from 'vue';
-import { useViewWidth, VIEW_BASE_WIDTH } from './useViewWidth.js';
+import { useViewWidth, VIEW_BASE_WIDTH } from '@aaix/laravel-islands/vue';
 
 const DEFAULT_PANEL_WIDTH = 320;
 
