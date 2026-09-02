@@ -18,7 +18,7 @@ class ViewProfileSchema
 
     public static function make(): self
     {
-        return new self();
+        return new self;
     }
 
     /** Free text, cut to a length nobody has to defend. */

@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+use App\Models\DatatableViewProfile;
 
 return [
 
@@ -15,7 +16,7 @@ return [
     |
     */
     'view_profiles' => [
-        'model' => \App\Models\DatatableViewProfile::class,
+        'model' => DatatableViewProfile::class,
         'max_per_section' => 50,
         'ref_length' => 10,
     ],

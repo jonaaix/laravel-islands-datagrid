@@ -6,6 +6,7 @@ namespace Aaix\LaravelIslandsDatagrid\ViewProfiles;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 
 /**
  * The saved views of one table, read and written for the signed-in person.
@@ -20,8 +21,7 @@ class ViewProfileStore
     public function __construct(
         private readonly string $section,
         private readonly ViewProfileSchema $schema,
-    ) {
-    }
+    ) {}
 
     /**
      * @return class-string<Model>
@@ -90,7 +90,7 @@ class ViewProfileStore
         $model = self::model();
         $length = (int) config('datagrid.view_profiles.ref_length', 10);
 
-        if (!preg_match('/^[A-Za-z0-9]{' . $length . '}$/', $ref)) {
+        if (! preg_match('/^[A-Za-z0-9]{'.$length.'}$/', $ref)) {
             return null;
         }
 
@@ -200,7 +200,7 @@ class ViewProfileStore
         $length = (int) config('datagrid.view_profiles.ref_length', 10);
 
         do {
-            $ref = \Illuminate\Support\Str::random($length);
+            $ref = Str::random($length);
         } while ($model::query()->where('public_ref', $ref)->exists());
 
         return $ref;

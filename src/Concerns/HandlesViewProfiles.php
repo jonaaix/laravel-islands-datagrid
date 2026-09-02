@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Aaix\LaravelIslandsDatagrid\Concerns;
 
 use Aaix\LaravelIslandsDatagrid\ViewProfiles\ViewProfileStore;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -22,16 +23,14 @@ trait HandlesViewProfiles
 {
     abstract protected function viewProfiles(): ViewProfileStore;
 
-    protected function authorizeViewProfiles(): void
-    {
-    }
+    protected function authorizeViewProfiles(): void {}
 
     public function storeViewProfile(Request $request): JsonResponse
     {
         $this->authorizeViewProfiles();
 
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:' . ViewProfileStore::MAX_NAME_LENGTH],
+            'name' => ['required', 'string', 'max:'.ViewProfileStore::MAX_NAME_LENGTH],
             'payload' => ['present', 'array'],
         ]);
 
@@ -53,7 +52,7 @@ trait HandlesViewProfiles
         $this->authorizeViewProfiles();
 
         $validated = $request->validate([
-            'name' => ['sometimes', 'string', 'max:' . ViewProfileStore::MAX_NAME_LENGTH],
+            'name' => ['sometimes', 'string', 'max:'.ViewProfileStore::MAX_NAME_LENGTH],
             'payload' => ['sometimes', 'array'],
             'is_default' => ['sometimes', 'boolean'],
         ]);
@@ -84,13 +83,13 @@ trait HandlesViewProfiles
      * A view belongs to the person who saved it. Someone else may open it by link, but only its
      * owner may rename, change or delete it.
      */
-    private function ownedViewProfile(string $ref): \Illuminate\Database\Eloquent\Model
+    private function ownedViewProfile(string $ref): Model
     {
         $store = $this->viewProfiles();
         $record = $store->findByRef($ref);
 
-        if ($record === null || !$store->owns($record, Auth::id())) {
-            throw new AccessDeniedHttpException();
+        if ($record === null || ! $store->owns($record, Auth::id())) {
+            throw new AccessDeniedHttpException;
         }
 
         return $record;
