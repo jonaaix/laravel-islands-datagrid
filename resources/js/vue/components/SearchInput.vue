@@ -18,7 +18,15 @@ function focus() {
     inputEl.value?.focus();
 }
 
-defineExpose({ focus });
+/**
+ * Enter leaves the term selected, so the next scan overwrites it. A barcode scanner types the
+ * code and sends Enter; without this the second code would append to the first.
+ */
+function selectAll() {
+    inputEl.value?.select();
+}
+
+defineExpose({ focus, selectAll });
 </script>
 
 <template>
@@ -33,6 +41,7 @@ defineExpose({ focus });
             type="search"
             :value="modelValue"
             @input="emit('update:modelValue', $event.target.value)"
+            @keydown.enter.prevent="selectAll()"
             :placeholder="placeholder"
             class="h-9 w-full rounded-md border border-gray-200 bg-white pl-8 pr-9 text-sm text-gray-900 placeholder:text-gray-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-white/10 dark:bg-gray-900 dark:text-gray-100 [&::-webkit-search-cancel-button]:appearance-none"
         />
