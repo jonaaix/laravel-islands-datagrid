@@ -157,13 +157,15 @@ Around the `<DataTable>`: page header, `<Tabs>` (tab is a filter, not a column),
   comes first in the flex row, the panel after it), so the toolbar and its
   primary filters stay on the reader's natural left. `useFilterPanelDock` keeps
   it docked while there is room and lifts it into an overlay otherwise.
-- **Sort menu, view profiles, column picker, filter toggle, view-mode strip
+- **View profiles, sort menu, column picker, filter toggle, view-mode strip
   cluster on the right** of the toolbar, in that order — so they land in the
-  same spot in every table and a reader's muscle memory carries over.
+  same spot in every table and a reader's muscle memory carries over. The
+  view menu opens the cluster and carries the `ml-auto`; the sort menu sits
+  to its right.
 
 Toolbar slot, in order:
-`SearchInput` · filter `Combobox`es · `SortMenu` (cards mode only) ·
-`ViewProfileMenu` · `ColumnPicker` (table mode only) · filter-toggle
+`SearchInput` · filter `Combobox`es · `ViewProfileMenu` ·
+`SortMenu` (cards mode only) · `ColumnPicker` (table mode only) · filter-toggle
 `IconButton` with an `activeFilterCount` badge · `OptionStrip` for
 table/cards mode.
 
