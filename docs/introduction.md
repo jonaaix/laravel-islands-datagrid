@@ -1,16 +1,21 @@
 # Introduction
 
 Laravel Islands Datagrid is a data table for [Laravel Islands](https://jonaaix.github.io/laravel-islands/).
-It owns what is the same in every list — fetching, state, the URL, the shell around the
-rows, the toolbar controls, pagination, selection and saved views — and leaves what
-differs to you: the columns, the rows, the filters and the rules of the domain.
+It owns the part of a list view that is the same in every list — fetching, state, the
+URL, the shell around the rows, the toolbar controls, pagination, selection and saved
+views — and leaves the part that is different in every list to you: the columns, the
+rows, the filters that make sense for this data, and the rules of the domain.
 
 ## How It Fits Together
 
-**An endpoint** answers `GET` requests with rows and metadata under a `data` envelope.
+A list view built with this package is an island with two halves:
 
-**A component** declares its state as one `defaults` object, hands it to `useDataTable()`
-and renders the result through `DataTable`:
+**An endpoint** answers `GET` requests with rows and metadata under a `data` envelope.
+It receives every state key as a query parameter, validates them, and returns exactly
+what the rows will draw. See [The Endpoint Contract](/endpoint).
+
+**A component** declares its state as one `defaults` object, hands it to
+`useDataTable()`, and renders the result through `DataTable`:
 
 ```vue
 <script setup>
@@ -19,7 +24,7 @@ import { DataTable, SearchInput, useDataTable } from '@aaix/laravel-islands-data
 
 const DEFAULTS = { q: '', status: '', sort: 'created_at', dir: 'desc', page: 1, perPage: 30 };
 
-const { state, rows, meta, loading, error, onSearchInput, clearSearch, goToPage, setPerPage, reload, fetchData } =
+const { state, rows, meta, loading, error, onSearchInput, clearSearch, setSort, goToPage, setPerPage, reload, fetchData } =
     useDataTable(props.dataUrl, { defaults: DEFAULTS, initial: props.initial, filterKeys: ['status'] });
 
 onMounted(fetchData);
@@ -38,19 +43,27 @@ onMounted(fetchData);
 ```
 
 Everything the composable does — the request, the debounce, the URL, the history, the
-race guard — follows from `defaults`. Everything the shell does — skeleton, empty state,
-error banner, pagination — follows from `rows`, `meta`, `loading` and `error`.
+race guard — follows from that `defaults` object. Everything the shell does — the
+skeleton, the empty state, the error banner, the floating bars — follows from the
+`rows`, `meta`, `loading` and `error` it receives.
 
-## What the Package Provides
+## What the Package Owns
 
 | | |
 | --- | --- |
-| `useDataTable` | State, request, URL sync, history, search debounce, race guard |
-| `DataTable` | The card, toolbar slot, skeleton, empty and error states, table / cards / list modes, floating bars |
+| `useDataTable` | State from one `defaults` object, the request, URL sync, history, search debounce, race guard |
+| `DataTable` | The card, the toolbar slot, skeleton, empty and error states, three view modes, floating bars |
 | Toolbar controls | `SearchInput`, `Combobox`, `SortMenu`, `SortButton`, `ColumnPicker`, `FilterPanel`, `ViewProfileMenu` |
-| `Pagination` | A sliding window of seven pages, per-page and jump-to-page selects |
+| `Pagination` | A sliding window of seven page numbers, per-page and jump-to-page selects |
 | `useSelection` | Page and matching-set selection for bulk actions |
-| Saved views | `useViewProfiles`, `ViewProfileMenu` and the PHP endpoints, store and schema |
+| `useViewProfiles` + PHP | Saved views: endpoints, ownership, sharing, defaults, a payload schema |
+| `useAutoMobileMode`, `useFilterPanelDock`, `useViewWidth` | The responsive behaviour every list shares |
+
+## What Stays With You
+
+The page header, the tab strip, the columns and the row component, the filters and
+their validation, the presenters that turn a model into a row, and every domain rule.
+The package never renders a cell.
 
 ## Requirements
 
@@ -58,6 +71,6 @@ error banner, pagination — follows from `rows`, `meta`, `loading` and `error`.
 | --- | --- |
 | PHP | 8.3 or newer |
 | Laravel | 12 or 13 |
-| Laravel Islands | 1.0.31 or newer |
+| Laravel Islands | 1.0.31 or newer — this package builds on its runtime and helpers |
 | Vue | 3.4 or newer |
 | Tailwind CSS | 4 |
