@@ -1,23 +1,11 @@
 # Quickstart
 
-A complete list view — search, one filter, sortable columns, pagination — in one
-endpoint and one component. It assumes the [installation](/installation) is done and an
-island named `Invoices` has been scaffolded.
+A list with search, one filter, sortable columns and pagination, in an island named
+`Invoices` scaffolded with `php artisan make:island Invoices`.
 
 ## 1. The Query
 
-The query owns the whitelists and returns rows in the shape the component draws:
-
 ```php
-<?php
-
-declare(strict_types=1);
-
-namespace App\Islands\Invoices\Queries;
-
-use App\Models\Invoice;
-use Illuminate\Http\Request;
-
 class InvoicesQuery
 {
     public const SORTABLE = ['number', 'customer', 'total', 'created_at'];
@@ -28,11 +16,11 @@ class InvoicesQuery
     {
         $sort = in_array($request->query('sort'), self::SORTABLE, true) ? $request->query('sort') : 'created_at';
         $dir = $request->query('dir') === 'asc' ? 'asc' : 'desc';
-        $perPage = max(5, min(200, (int) $request->query('perPage', 30)));
+        $perPage = PerPageEnum::sanitize((int) $request->query('perPage', 30));
         $status = in_array($request->query('status'), self::STATUSES, true) ? $request->query('status') : null;
 
         $paginator = Invoice::query()
-            ->when($request->query('q'), fn ($query, $q) => $query->where('number', 'like', "%{$q}%")->orWhere('customer', 'like', "%{$q}%"))
+            ->when($request->query('q'), fn ($query, $q) => $query->where('number', 'like', "%{$q}%"))
             ->when($status, fn ($query) => $query->where('status', $status))
             ->orderBy($sort, $dir)
             ->paginate($perPage, ['*'], 'page', max(1, (int) $request->query('page', 1)));
@@ -59,21 +47,10 @@ class InvoicesQuery
 }
 ```
 
-## 2. The Endpoint
+The scaffolded controller already returns `['data' => $this->query->data($request)]`
+from `GET data` — fill in its `authorizeAccess()`.
 
-The scaffolded controller and `Routes.php` already wire `GET data` to the query. Fill in
-the authorization, then move on:
-
-```php
-public function data(Request $request): JsonResponse
-{
-    $this->authorizeAccess();
-
-    return response()->json(['data' => $this->query->data($request)]);
-}
-```
-
-## 3. The Props
+## 2. The Props
 
 ```php
 public function build(Request $request): array
@@ -88,10 +65,9 @@ public function build(Request $request): array
 }
 ```
 
-## 4. The Component
+## 3. The Component
 
 ```vue
-<!-- app/Islands/Invoices/Invoices.island.vue -->
 <script setup>
 import { onMounted } from 'vue';
 import { useIsland, useTranslations, useViewWidth } from '@aaix/laravel-islands/vue';
@@ -113,31 +89,16 @@ onMounted(fetchData);
 </script>
 
 <template>
-    <div ref="root" :style="rootStyle" class="island-view mx-auto w-full">
+    <div ref="root" :style="rootStyle" class="mx-auto w-full">
         <DataTable
-            :rows="rows"
-            :meta="meta"
-            :per-page="state.perPage"
-            :col-count="4"
-            :loading="loading"
-            :error="error"
-            :error-message="t('Could not load invoices')"
+            :rows="rows" :meta="meta" :per-page="state.perPage" :col-count="4"
+            :loading="loading" :error="error" :error-message="t('Could not load invoices')"
             floating-footer
-            @retry="reload()"
-            @page-change="goToPage"
-            @per-page-change="setPerPage"
+            @retry="reload()" @page-change="goToPage" @per-page-change="setPerPage"
         >
             <template #toolbar>
                 <SearchInput :model-value="state.q" :placeholder="t('Search invoices…')" @update:model-value="onSearchInput" @clear="clearSearch()" />
-                <Combobox
-                    :model-value="state.status"
-                    :options="props.statuses"
-                    empty-value=""
-                    :placeholder="t('Status')"
-                    :all-label="t('All statuses')"
-                    variant="filter"
-                    @update:model-value="(value) => setFilter('status', value)"
-                />
+                <Combobox :model-value="state.status" :options="props.statuses" empty-value="" :placeholder="t('Status')" :all-label="t('All statuses')" variant="filter" @update:model-value="(value) => setFilter('status', value)" />
             </template>
 
             <template #head>
@@ -157,43 +118,6 @@ onMounted(fetchData);
 </template>
 ```
 
-The row component's root is a `<tr>`:
-
-```vue
-<!-- app/Islands/Invoices/Components/InvoiceRow.vue -->
-<script setup>
-import { Badge } from '@aaix/laravel-islands/vue/helpers';
-
-defineProps({ row: { type: Object, required: true } });
-</script>
-
-<template>
-    <tr class="border-t border-gray-100 dark:border-white/10">
-        <td class="px-3 py-2 font-medium">{{ row.number }}</td>
-        <td class="px-3 py-2">{{ row.customer }}</td>
-        <td class="px-3 py-2 text-right tabular-nums">{{ row.total }}</td>
-        <td class="px-3 py-2"><Badge :tone="row.status === 'paid' ? 'emerald' : 'amber'">{{ row.status }}</Badge></td>
-    </tr>
-</template>
-```
-
-Open the page. Typing searches after a short pause, the status filter resets to page one,
-the column headers sort, the URL follows every change, and the back button undoes it.
-
-## What Just Happened
-
-- `DEFAULTS` declared the whole state. Every key went out as a query parameter, and
-  every key that differs from its default is now mirrored in the URL.
-- `filterKeys: ['status']` told the composable which keys count as filters, so
-  `activeFilterCount` and `resetFilters()` know about them.
-- `DataTable` drew a skeleton while the first request ran, and would draw the empty state
-  or the error banner with a retry button had the answer been empty or failed.
-- `colCount` matched the four `<th>` — it drives the `colspan` of the skeleton and the
-  empty state.
-
-## Where to Go From Here
-
-- [Table State](/table-state) — everything `useDataTable()` does with `defaults`.
-- [Toolbar & Filters](/toolbar) — the canonical toolbar, the filter panel, columns.
-- [Saved Views](/saved-views) — let users name and share a view.
-- [Responsive & Mobile](/responsive) — the same list on a phone.
+The row component's root is a `<tr>`. Typing searches after a short pause, the filter
+resets to page one, the headers sort, the URL follows every change and the back button
+undoes it.

@@ -14,7 +14,6 @@ export default defineConfig({
 
       nav: [
          { text: 'Guide', link: '/introduction' },
-         { text: 'Reference', link: '/exports' },
          { text: 'Laravel Islands', link: 'https://jonaaix.github.io/laravel-islands/' },
       ],
 
@@ -28,29 +27,15 @@ export default defineConfig({
             ],
          },
          {
-            text: 'The Basics',
+            text: 'Guide',
             items: [
-               { text: 'The Endpoint Contract', link: '/endpoint' },
+               { text: 'The Endpoint', link: '/endpoint' },
                { text: 'Table State', link: '/table-state' },
                { text: 'The DataTable', link: '/data-table' },
                { text: 'Toolbar & Filters', link: '/toolbar' },
-               { text: 'Pagination', link: '/pagination' },
-               { text: 'Tabs & Groups', link: '/tabs-and-groups' },
-            ],
-         },
-         {
-            text: 'Digging Deeper',
-            items: [
-               { text: 'Selection & Bulk Actions', link: '/selection' },
+               { text: 'Selection', link: '/selection' },
                { text: 'Saved Views', link: '/saved-views' },
-               { text: 'Responsive & Mobile', link: '/responsive' },
                { text: 'Configuration', link: '/configuration' },
-            ],
-         },
-         {
-            text: 'Reference',
-            items: [
-               { text: 'Exports', link: '/exports' },
             ],
          },
       ],
@@ -67,7 +52,5 @@ export default defineConfig({
       search: {
          provider: 'local',
       },
-
-      outline: [2, 3],
    },
 })
