@@ -13,24 +13,44 @@ export default defineConfig({
       logo: '/logo.svg',
 
       nav: [
-         { text: 'Getting Started', link: '/getting-started' },
-         { text: 'API', link: '/use-data-table' },
+         { text: 'Guide', link: '/introduction' },
+         { text: 'Reference', link: '/exports' },
+         { text: 'Laravel Islands', link: 'https://jonaaix.github.io/laravel-islands/' },
       ],
 
       sidebar: [
          {
-            text: 'Guide',
+            text: 'Getting Started',
             items: [
-               { text: 'Getting Started', link: '/getting-started' },
-               { text: 'Building a Table', link: '/building-a-table' },
+               { text: 'Introduction', link: '/introduction' },
+               { text: 'Installation', link: '/installation' },
+               { text: 'Quickstart', link: '/quickstart' },
             ],
          },
          {
-            text: 'API',
+            text: 'The Basics',
             items: [
-               { text: 'useDataTable', link: '/use-data-table' },
-               { text: 'DataTable', link: '/data-table' },
-               { text: 'Toolbar, Selection, Saved Views', link: '/toolbar-and-selection' },
+               { text: 'The Endpoint Contract', link: '/endpoint' },
+               { text: 'Table State', link: '/table-state' },
+               { text: 'The DataTable', link: '/data-table' },
+               { text: 'Toolbar & Filters', link: '/toolbar' },
+               { text: 'Pagination', link: '/pagination' },
+               { text: 'Tabs & Groups', link: '/tabs-and-groups' },
+            ],
+         },
+         {
+            text: 'Digging Deeper',
+            items: [
+               { text: 'Selection & Bulk Actions', link: '/selection' },
+               { text: 'Saved Views', link: '/saved-views' },
+               { text: 'Responsive & Mobile', link: '/responsive' },
+               { text: 'Configuration', link: '/configuration' },
+            ],
+         },
+         {
+            text: 'Reference',
+            items: [
+               { text: 'Exports', link: '/exports' },
             ],
          },
       ],
@@ -47,5 +67,7 @@ export default defineConfig({
       search: {
          provider: 'local',
       },
+
+      outline: [2, 3],
    },
 })
