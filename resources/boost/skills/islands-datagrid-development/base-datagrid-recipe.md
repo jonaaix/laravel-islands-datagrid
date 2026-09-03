@@ -8,7 +8,7 @@ scope: aaix/laravel-islands-datagrid
 The shape of a list view that carries its own weight — search, sort, filters,
 tabs, pagination, column picker, saved views, card mode, empty state, skeleton.
 Not a template to paste; a checklist of the pieces and the order they belong in.
-Consult the SKILL, `building-a-table.md` and the helpers index for how each
+Consult the SKILL, the docs (`docs/quickstart.md`, `docs/toolbar.md`) and the helpers index for how each
 piece works.
 
 Use `Records` as the placeholder feature name below.
