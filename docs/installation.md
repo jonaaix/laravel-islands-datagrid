@@ -12,22 +12,22 @@ no views, no migrations.
 
 ## Vite
 
-Like the base package, the frontend ships as plain sources inside the Composer package.
-Alias both:
+Both packages bring their own Vite plugin. Register them and the import names resolve
+themselves — no aliases to write, and none that can drift out of step with the sources:
 
 ```js
 // vite.config.js
-resolve: {
-    alias: {
-        '@aaix/laravel-islands': fileURLToPath(
-            new URL('./vendor/aaix/laravel-islands/resources/js', import.meta.url),
-        ),
-        '@aaix/laravel-islands-datagrid': fileURLToPath(
-            new URL('./vendor/aaix/laravel-islands-datagrid/resources/js', import.meta.url),
-        ),
-    },
-},
+import { defineConfig } from 'vite';
+import vue from '@vitejs/plugin-vue';
+import islands from './vendor/aaix/laravel-islands/vite.js';
+import datagrid from './vendor/aaix/laravel-islands-datagrid/vite.js';
+
+export default defineConfig({
+    plugins: [vue(), islands(), datagrid()],
+});
 ```
+
+The base package's plugin is required: the datagrid imports from it at runtime.
 
 There is one entry point:
 
