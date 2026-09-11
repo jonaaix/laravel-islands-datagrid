@@ -77,7 +77,7 @@ function aliasEntries(source) {
         }));
 }
 
-export default function datagrid() {
+export default function islandsDatagrid() {
     return {
         name: 'aaix:laravel-islands-datagrid',
         config(userConfig) {

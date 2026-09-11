@@ -20,10 +20,10 @@ themselves — no aliases to write, and none that can drift out of step with the
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import islands from './vendor/aaix/laravel-islands/vite.js';
-import datagrid from './vendor/aaix/laravel-islands-datagrid/vite.js';
+import islandsDatagrid from './vendor/aaix/laravel-islands-datagrid/vite.js';
 
 export default defineConfig({
-    plugins: [vue(), islands(), datagrid()],
+    plugins: [vue(), islands(), islandsDatagrid()],
 });
 ```
 
