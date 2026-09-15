@@ -101,6 +101,12 @@ parameters stays with the table: it cancels Livewire's restore and the `popstate
 above answers it. A step that also changes a parameter the table does not own — a tab a
 `wire:navigate` link switched, say — is left to Livewire.
 
+When a page swap takes the table away, it hands its rows, meta and state to the islands
+runtime. The next mount at the same URL — a back step, or a link to the list seen a minute
+ago — paints them before the first fetch, and that fetch then replaces them in place, so
+the user sees the list as they left it instead of a skeleton. A table whose rows must never
+be a moment old passes `restore: false`.
+
 ## Requests in Flight
 
 Every fetch carries a running number. When a slow response arrives after a newer request
