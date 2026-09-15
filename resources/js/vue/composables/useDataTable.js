@@ -93,14 +93,16 @@ export function useDataTable(dataUrl, options = {}) {
         const qs = new URLSearchParams(toQuery()).toString().replace(/%5B/g, '[').replace(/%5D/g, ']');
         const path = window.location.pathname;
         const url = qs ? `${path}?${qs}` : path;
+        // Livewire's navigate state travels along, so a back step into this entry from another page can still restore the page.
+        const state = { ...(window.history.state ?? {}), islands: true };
 
         if (push && url !== path + window.location.search) {
-            window.history.pushState(null, '', url);
+            window.history.pushState(state, '', url);
 
             return;
         }
 
-        window.history.replaceState(null, '', url);
+        window.history.replaceState(state, '', url);
     }
 
     /**
@@ -138,6 +140,10 @@ export function useDataTable(dataUrl, options = {}) {
     // what the shared link showed.
     if (typeof window !== 'undefined' && window.location?.search) {
         applyQuery({ ...state });
+    }
+
+    if (typeof window !== 'undefined') {
+        syncUrl();
     }
 
     function onPopState() {
