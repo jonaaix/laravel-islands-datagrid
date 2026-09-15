@@ -94,11 +94,12 @@ The back and forward buttons work: a `popstate` listener reads the query string 
 and fetches. `reload()` pushes a history entry by default; typing in the search replaces
 the current one, so a search does not leave one entry per keystroke.
 
-Every entry the table writes carries Livewire's navigation state along with an `islands`
-flag. Under `wire:navigate` — Filament's `->spa()` — that lets Livewire restore the page
-when the back button lands on a filtered table from another page, while a step within the
-page stays with the table: the islands runtime cancels Livewire's own restore for a
-flagged entry on the current path, and the `popstate` listener above answers it.
+Every entry the table writes carries Livewire's navigation state. Under `wire:navigate` —
+Filament's `->spa()` — that lets Livewire restore the page when the back button lands on a
+filtered table from another page. A history step that changes nothing but the table's own
+parameters stays with the table: it cancels Livewire's restore and the `popstate` listener
+above answers it. A step that also changes a parameter the table does not own — a tab a
+`wire:navigate` link switched, say — is left to Livewire.
 
 ## Requests in Flight
 
