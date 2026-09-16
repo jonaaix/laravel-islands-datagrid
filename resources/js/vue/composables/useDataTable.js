@@ -30,6 +30,12 @@ const ISLAND_STATE_KEY = Symbol.for('aaix.laravel-islands.state');
  * @param {number} [options.searchDelay] Debounce for `onSearchInput`, in milliseconds.
  * @param {{ get: Function }} [options.http] HTTP client; defaults to the package's fetch client.
  */
+function sameState(remembered, current) {
+    const keys = new Set([...Object.keys(remembered ?? {}), ...Object.keys(current)]);
+
+    return [...keys].every((key) => JSON.stringify(remembered?.[key] ?? null) === JSON.stringify(current[key] ?? null));
+}
+
 export function useDataTable(dataUrl, options = {}) {
     const {
         defaults = {},
@@ -54,11 +60,11 @@ export function useDataTable(dataUrl, options = {}) {
     const islandState = restore && getCurrentInstance() ? inject(ISLAND_STATE_KEY, null) : null;
     const remembered = islandState?.restored?.[dataUrl];
 
-    if (remembered) {
+    // The URL and the props decide what the table shows; a remembered visit only lends its rows when it showed the same thing.
+    if (remembered && sameState(remembered.state, state)) {
         rows.value = remembered.rows;
         meta.value = remembered.meta;
         payload.value = remembered.payload;
-        Object.assign(state, remembered.state);
     }
 
     if (islandState) {

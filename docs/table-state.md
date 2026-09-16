@@ -104,8 +104,10 @@ above answers it. A step that also changes a parameter the table does not own �
 When a page swap takes the table away, it hands its rows, meta and state to the islands
 runtime. The next mount at the same URL — a back step, or a link to the list seen a minute
 ago — paints them before the first fetch, and that fetch then replaces them in place, so
-the user sees the list as they left it instead of a skeleton. A table whose rows must never
-be a moment old passes `restore: false`.
+the user sees the list as they left it instead of a skeleton. The rows are lent only when
+the remembered state equals the one the URL and the props dictate: a sidebar link to the
+bare list URL opens the default view, never the tab the user last had open. A table whose
+rows must never be a moment old passes `restore: false`.
 
 ## Requests in Flight
 
