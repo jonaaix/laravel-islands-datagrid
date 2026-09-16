@@ -1,6 +1,6 @@
 <script setup>
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue';
-import { FieldCaption, IconButton, Popover, Tooltip } from '@aaix/laravel-islands/vue/helpers';
+import { FieldCaption, IconButton, Popover, Tooltip, vRipple } from '@aaix/laravel-islands/vue/helpers';
 import { useDatagrid } from '../context.js';
 import IconStar from '../icons/IconStar.vue';
 import IconViews from '../icons/IconViews.vue';
@@ -130,10 +130,11 @@ const ITEM_CLASS = 'flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm
         >
             <button
                 type="button"
+                v-ripple
                 @click="toggle()"
                 :aria-expanded="open ? 'true' : 'false'"
                 :aria-label="active.name"
-                class="flex h-9 min-w-0 flex-1 items-center gap-1.5 rounded-full pr-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+                class="relative flex h-9 min-w-0 flex-1 items-center gap-1.5 overflow-hidden rounded-full pr-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
             >
                 <IconViews class="h-4 w-4 shrink-0 opacity-70" />
 
