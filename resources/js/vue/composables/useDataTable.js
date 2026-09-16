@@ -30,11 +30,8 @@ const ISLAND_STATE_KEY = Symbol.for('aaix.laravel-islands.state');
  * @param {number} [options.searchDelay] Debounce for `onSearchInput`, in milliseconds.
  * @param {{ get: Function }} [options.http] HTTP client; defaults to the package's fetch client.
  */
-function sameState(remembered, current) {
-    const keys = new Set([...Object.keys(remembered ?? {}), ...Object.keys(current)]);
-
-    return [...keys].every((key) => JSON.stringify(remembered?.[key] ?? null) === JSON.stringify(current[key] ?? null));
-}
+// Enough for the tabs and pages a user flips between; more would only weigh on the device store.
+const VIEWS_LIMIT = 6;
 
 export function useDataTable(dataUrl, options = {}) {
     const {
@@ -58,18 +55,38 @@ export function useDataTable(dataUrl, options = {}) {
     const error = ref(false);
 
     const islandState = restore && getCurrentInstance() ? inject(ISLAND_STATE_KEY, null) : null;
-    const remembered = islandState?.restored?.[dataUrl];
-
-    // The URL and the props decide what the table shows; a remembered visit only lends its rows when it showed the same thing.
-    if (remembered && sameState(remembered.state, state)) {
-        rows.value = remembered.rows;
-        meta.value = remembered.meta;
-        payload.value = remembered.payload;
-    }
+    const views = new Map(islandState?.restored?.[dataUrl]?.views ?? []);
 
     if (islandState) {
-        islandState.register(dataUrl, () => ({ rows: rows.value, meta: meta.value, payload: payload.value, state: { ...state } }));
+        islandState.register(dataUrl, () => ({ views: [...views.entries()] }));
         onBeforeUnmount(() => islandState.unregister(dataUrl));
+    }
+
+    function viewKey() {
+        return JSON.stringify(Object.entries(toParams()).sort(([a], [b]) => a.localeCompare(b)));
+    }
+
+    // Stale-while-revalidate per view: a tab, page or filter seen before paints at once and the fetch replaces it in place.
+    function recallView() {
+        const seen = views.get(viewKey());
+
+        if (!seen) {
+            return;
+        }
+
+        rows.value = seen.rows;
+        meta.value = seen.meta;
+        payload.value = seen.payload;
+    }
+
+    function rememberView() {
+        const key = viewKey();
+        views.delete(key);
+        views.set(key, { rows: rows.value, meta: meta.value, payload: payload.value });
+
+        while (views.size > VIEWS_LIMIT) {
+            views.delete(views.keys().next().value);
+        }
     }
 
     let requestId = 0;
@@ -217,6 +234,8 @@ export function useDataTable(dataUrl, options = {}) {
         syncUrl();
     }
 
+    recallView();
+
     function onPopState() {
         applyQuery();
         syncedUrl = window.location.pathname + window.location.search;
@@ -237,6 +256,7 @@ export function useDataTable(dataUrl, options = {}) {
         const id = ++requestId;
         loading.value = true;
         error.value = false;
+        recallView();
 
         try {
             const { data } = await (http ?? httpClient).get(dataUrl, { params: toParams() });
@@ -249,6 +269,7 @@ export function useDataTable(dataUrl, options = {}) {
             payload.value = body;
             rows.value = body.rows ?? [];
             meta.value = body.meta ?? {};
+            rememberView();
         } catch (e) {
             if (id === requestId) {
                 error.value = true;

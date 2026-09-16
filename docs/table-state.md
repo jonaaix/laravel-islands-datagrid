@@ -101,13 +101,15 @@ parameters stays with the table: it cancels Livewire's restore and the `popstate
 above answers it. A step that also changes a parameter the table does not own — a tab a
 `wire:navigate` link switched, say — is left to Livewire.
 
-When a page swap takes the table away, it hands its rows, meta and state to the islands
-runtime. The next mount at the same URL — a back step, or a link to the list seen a minute
-ago — paints them before the first fetch, and that fetch then replaces them in place, so
-the user sees the list as they left it instead of a skeleton. The rows are lent only when
-the remembered state equals the one the URL and the props dictate: a sidebar link to the
-bare list URL opens the default view, never the tab the user last had open. A table whose
-rows must never be a moment old passes `restore: false`.
+The table keeps the rows of the last six views it fetched — a view being one combination of
+tab, filters, sort and page. Switching back to a view seen before paints those rows at once
+and the fetch replaces them in place; the same happens on the first mount when the URL names
+a view the table has seen. When a page swap or a reload takes the table away, it hands that
+set to the islands runtime, which keeps it for the URL and gives it back on the next mount —
+after a back step, a sidebar link, or a reload — so the user sees the list as they last saw
+it instead of a skeleton. The URL and the props always decide which view opens; the
+remembered set only supplies the rows for it. A table whose rows must never be a moment old
+passes `restore: false`.
 
 ## Requests in Flight
 
