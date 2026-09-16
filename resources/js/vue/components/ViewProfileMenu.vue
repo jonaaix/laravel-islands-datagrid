@@ -126,15 +126,16 @@ const ITEM_CLASS = 'flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm
 
         <div
             v-else
-            class="flex h-9 max-w-[18rem] items-center rounded-full bg-primary-500/10 pl-2.5 pr-1 text-sm font-medium text-primary-700 transition-colors dark:text-primary-300"
+            class="flex h-9 max-w-[18rem] items-center rounded-full bg-primary-500/10 pr-1 text-sm font-medium text-primary-700 transition-colors dark:text-primary-300"
         >
+            <!-- The button owns the pill's left half, padding included, so its ripple fills the pill up to the reset button. -->
             <button
                 type="button"
                 v-ripple
                 @click="toggle()"
                 :aria-expanded="open ? 'true' : 'false'"
                 :aria-label="active.name"
-                class="relative flex h-9 min-w-0 flex-1 items-center gap-1.5 overflow-hidden rounded-full pr-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+                class="relative flex h-9 min-w-0 flex-1 items-center gap-1.5 overflow-hidden rounded-l-full pl-2.5 pr-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
             >
                 <IconViews class="h-4 w-4 shrink-0 opacity-70" />
 
