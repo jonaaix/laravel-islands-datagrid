@@ -13,7 +13,6 @@ around it; columns, rows and cards go into its slots.
     :loading="loading"
     :error="error"
     :error-message="t('Could not load invoices')"
-    floating-toolbar
     floating-footer
     @retry="reload()"
     @page-change="goToPage"
@@ -46,7 +45,7 @@ around it; columns, rows and cards go into its slots.
 | `listSkeletonHeight`, `listSkeletonCount` | `'64px'`, `10` | The list skeleton. |
 | `bleed` | `false` | Drops the card's rounding and ring for an edge-to-edge table on a phone. |
 | `fixedHeight` | `false` | Gives the card a height and scrolls the rows inside it. See [Fixed Height](#fixed-height). |
-| `floatingToolbar` | `false` | Lifts the toolbar into a floating pill once it would leave the screen. |
+| `floatingToolbar` | `false` | Lifts the toolbar into a floating pill once it would leave the screen. Not recommended; see [Floating Bars](#floating-bars). |
 | `floatingFooter` | `false` | Same for the pagination. |
 | `floatingBreakpoint` | `'(min-width: 768px)'` | Floating bars only above this media query. |
 | `floatTopOffset`, `floatBottomOffset` | `12`, `12` | Distance of the floating bars from the viewport edge, in pixels. |
@@ -124,10 +123,14 @@ switches to `list` by itself.
 
 ## Floating Bars
 
-A long list scrolls its toolbar and its pagination off the screen. `floatingToolbar` and
-`floatingFooter` lift them into glass pills that follow the viewport once the originals
-would leave it — while the page keeps its own scroll, and the originals stay in place so
-nothing shifts.
+A long list scrolls its pagination off the screen. `floatingFooter` lifts it into a glass
+pill that follows the viewport once the original would leave it — while the page keeps its
+own scroll, and the original stays in place so nothing shifts.
+
+`floatingToolbar` does the same for the toolbar. It is available but not recommended: a
+second copy of the search field and the filters hovering over the rows reads as clutter,
+and the lists that tried it switched it off again. Use it only for a view whose toolbar
+carries something the reader must keep in reach while scrolling.
 
 A bar floats only above `floatingBreakpoint`, only while at least a little of the table is
 still on screen, and only when it has content. `floatingFooter` in a view that does not

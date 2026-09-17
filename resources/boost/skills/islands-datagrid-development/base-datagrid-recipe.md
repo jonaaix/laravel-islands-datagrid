@@ -322,6 +322,9 @@ visible-column count including conditional ones — it drives skeleton and empty
   belongs to a view that paginates; a view that answers in one go floats
   nothing. Switching a bar on because the recipe names it is how an empty pill
   ends up over the rows.
+- **No floating toolbar.** `floating-toolbar` exists, and no list here uses it: a
+  duplicated toolbar hovering over the rows reads as clutter. Leave it off
+  unless the owner asks for it.
 
 ## What already lives in the package
 

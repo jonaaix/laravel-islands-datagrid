@@ -123,12 +123,15 @@ the `#cards` slot instead of the `<table>`. Toolbar, error banner and
 pagination stay the same. The `#head` and default slots are ignored in that
 mode; sorting moves into the toolbar via `SortMenu` (below).
 
-`floatingToolbar` / `floatingFooter` lift toolbar and pagination into glass
-pills once they would leave the screen, while the page keeps its own scroll.
-Reach for them instead of turning the table into an inner scroll container —
-but only for a bar that has something to keep on screen: `floatingFooter` says
-nothing in a view that does not paginate, and a bar that would come up empty
-stays down.
+`floatingFooter` lifts the pagination into a glass pill once it would leave the
+screen, while the page keeps its own scroll. Reach for it instead of turning
+the table into an inner scroll container — but only in a view that paginates;
+a bar that would come up empty stays down.
+
+`floatingToolbar` does the same for the toolbar and is **not recommended**: a
+second copy of the search field and the filters hovering over the rows reads
+as clutter, and every list that tried it switched it off again. It stays in
+the package for a view that needs it; leave it off unless the owner asks.
 
 An application shell with a sticky header of its own sets `--table-float-top`
 once (its height plus the gap); the bars read it, so no view has to know what
