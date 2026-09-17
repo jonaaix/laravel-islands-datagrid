@@ -127,10 +127,8 @@ A long list scrolls its pagination off the screen. `floatingFooter` lifts it int
 pill that follows the viewport once the original would leave it — while the page keeps its
 own scroll, and the original stays in place so nothing shifts.
 
-`floatingToolbar` does the same for the toolbar. It is available but not recommended: a
-second copy of the search field and the filters hovering over the rows reads as clutter,
-and the lists that tried it switched it off again. Use it only for a view whose toolbar
-carries something the reader must keep in reach while scrolling.
+`floatingToolbar` does the same for the toolbar. Not recommended: a second toolbar hovering
+over the rows reads as clutter.
 
 A bar floats only above `floatingBreakpoint`, only while at least a little of the table is
 still on screen, and only when it has content. `floatingFooter` in a view that does not
