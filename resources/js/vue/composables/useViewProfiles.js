@@ -179,10 +179,10 @@ export function useViewProfiles(options) {
         Object.assign(state, next || {});
     }
 
-    function open(profile) {
+    function open(profile, options = {}) {
         write(profile.payload || {});
         state[stateKey] = profile.ref;
-        apply(profile.payload || {});
+        apply(profile.payload || {}, options);
     }
 
     function reset() {
@@ -202,7 +202,8 @@ export function useViewProfiles(options) {
             return null;
         }
 
-        open(target);
+        // Arriving is not a step the reader took, so this view replaces the entry instead of adding one.
+        open(target, { push: false });
 
         return target;
     }

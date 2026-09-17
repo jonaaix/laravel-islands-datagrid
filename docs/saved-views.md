@@ -189,7 +189,7 @@ const views = useViewProfiles({
 | `initial` | `[]` | The user's views from the props. |
 | `shared` | `null` | A view opened by link that belongs to someone else. |
 | `plain` | `{}` | What "reset view" lands on — a remembered column choice, not the package's neutral defaults. |
-| `apply(payload)` | | Called after a view was opened; reload the table here. |
+| `apply(payload, options)` | | Called after a view was opened; reload the table here. `options` carries `push: false` when the view opened because the reader arrived on the page, so pass it on: `apply: (payload, options = {}) => reload({ resetPage: true, ...options })`. Without it, the default view adds a history entry and the back button lands on the same page again. |
 | `onError(message)` | `null` | The first validation message, or the response's message. |
 
 | Returns | Meaning |
