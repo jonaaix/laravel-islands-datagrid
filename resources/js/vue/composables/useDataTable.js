@@ -66,9 +66,14 @@ export function useDataTable(dataUrl, options = {}) {
         return JSON.stringify(Object.entries(toParams()).sort(([a], [b]) => a.localeCompare(b)));
     }
 
+    let shownKey = null;
+
     // Stale-while-revalidate per view: a tab, page or filter seen before paints at once and the fetch replaces it in place.
+    // The view already on screen is never painted over, so a row the island changed in place does not flash back.
     function recallView() {
-        const seen = views.get(viewKey());
+        const key = viewKey();
+        const seen = key === shownKey ? null : views.get(key);
+        shownKey = key;
 
         if (!seen) {
             return;

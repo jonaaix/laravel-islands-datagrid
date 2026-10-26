@@ -94,6 +94,10 @@ The back and forward buttons work: a `popstate` listener reads the query string 
 and fetches. `reload()` pushes a history entry by default; typing in the search replaces
 the current one, so a search does not leave one entry per keystroke.
 
+A tab, page or filter seen before paints its last rows at once while the fetch runs. A
+`reload()` of the view already on screen keeps the rows it shows instead: a row the island
+removed or changed in place — archived, say — stays that way until the answer replaces it.
+
 Every entry the table writes carries Livewire's navigation state. Under `wire:navigate` —
 Filament's `->spa()` — that lets Livewire restore the page when the back button lands on a
 filtered table from another page. A history step that changes nothing but the table's own
