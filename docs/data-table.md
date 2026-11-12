@@ -102,7 +102,7 @@ stays usable, so a user can change the filter that produced the failure.
 
 | Mode | Renders | Sorting |
 | --- | --- | --- |
-| `table` | `<table>` with `#head` and the default slot | `SortButton` in the header |
+| `table` | `<table>` with `#head` and the default slot | `SortButton` in the header and `SortMenu` in the toolbar |
 | `cards` | An auto-fit grid of the `#cards` slot, `cardsMinWidth` per column | `SortMenu` in the toolbar |
 | `list` | A divided stack of the `#list` slot | `SortMenu` in the toolbar |
 

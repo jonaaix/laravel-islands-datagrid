@@ -15,7 +15,7 @@ so every list in the application reads the same way.
     <OptionStrip v-model="state.mode" variant="segmented" … />  <!-- option strips -->
 
     <ViewProfileMenu class="ml-auto" … />  <!-- opens the right-hand cluster -->
-    <SortMenu v-if="state.mode !== 'table'" … />
+    <SortMenu … />
     <ColumnPicker v-if="state.mode === 'table'" … />
     <IconButton :label="t('Filters')" size="lg" @click="toggleFilters">  <!-- with a FilterPanel -->
         <IconFilter />
@@ -35,8 +35,8 @@ so every list in the application reads the same way.
   `FilterPanel`, opened by the filter toggle with the `activeFilterCount` badge.
 - **The right-hand cluster** — views, sort, columns, filter toggle — lands in the same
   spot in every table, so a reader's muscle memory carries over.
-- **A list opens unfiltered.** Dropdown and quick filters start empty. An application may
-  set another default for a list, but that is the exception.
+- **A list opens unfiltered.** Dropdown and quick filters start empty; another default is
+  the exception.
 
 Every control is 36px tall (`size="lg"` on the icon buttons), so the row reads as one
 line.
@@ -113,7 +113,8 @@ Event: `sort(field)` → `setSort`.
 
 ## `SortMenu`
 
-Sorting from the toolbar, for cards and list mode where there is no header.
+Sorting from the toolbar, in every mode — the only way to sort in cards and list mode,
+where there is no header.
 
 ```vue
 <SortMenu :options="sortOptions" :sort="state.sort" :dir="state.dir" :label="t('Sort by')" @sort="setSort" />

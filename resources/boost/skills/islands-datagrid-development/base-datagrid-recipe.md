@@ -171,7 +171,7 @@ Around the `<DataTable>`: page header, `<Tabs>` (tab is a filter, not a column),
 Toolbar slot, in order:
 `SearchInput` · filter `Combobox`es · pipe divider · quick-filter
 `OptionStrip` (`multiple`) · option strips (`OptionStrip` for table/cards mode)
-· `ViewProfileMenu` · `SortMenu` (cards mode only) · `ColumnPicker` (table mode
+· `ViewProfileMenu` · `SortMenu` · `ColumnPicker` (table mode
 only) · filter-toggle `IconButton` with an `activeFilterCount` badge (when the
 list has a `FilterPanel`).
 
@@ -316,8 +316,8 @@ visible-column count including conditional ones — it drives skeleton and empty
   the query. Miss one and it stops working; miss another and it works too much.
 - **Tabs are a filter with a different shape.** Mutate `state.tab`, reset
   `state.page`, then `reload()`.
-- **Card mode needs `SortMenu`** in the toolbar — header `<th>`s are ignored
-  there.
+- **`SortMenu` sits in the toolbar in every mode** — in table mode beside the
+  header `<th>`s, in card mode as the only way to sort.
 - **Preferences persist per user, not per browser.** `localStorage` may cache,
   the server owns the truth (`preferencesUrl` in the props).
 - **Ship the empty state and the skeleton on day one.** They are not polish; a

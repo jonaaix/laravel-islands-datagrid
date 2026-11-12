@@ -123,7 +123,7 @@ ancestor to pin the toolbar height.
 **Cards mode:** setting `mode="cards"` renders a responsive auto-fit grid from
 the `#cards` slot instead of the `<table>`. Toolbar, error banner and
 pagination stay the same. The `#head` and default slots are ignored in that
-mode; sorting moves into the toolbar via `SortMenu` (below).
+mode; sorting is left to the toolbar's `SortMenu` (below).
 
 `floatingFooter` lifts the pagination into a glass pill once it would leave the
 screen, while the page keeps its own scroll — only in a view that paginates.
