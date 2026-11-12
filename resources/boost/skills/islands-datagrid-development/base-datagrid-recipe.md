@@ -161,19 +161,20 @@ Around the `<DataTable>`: page header, `<Tabs>` (tab is a filter, not a column),
   `OptionStrip variant="pills" multiple`, one pill per filter. Each pill
   switches on and off on its own; the strip never carries an "All" option,
   because no pill set already means all.
-- **Option strips come next** — one-of-many choices such as the view mode,
-  an `OptionStrip` each.
-- **View profiles, sort menu, column picker, filter toggle cluster on the
-  right** of the toolbar, in that order — so they land in the same spot in
-  every table and a reader's muscle memory carries over. The view menu opens
-  the cluster and carries the `ml-auto`.
+- **Option strips come next** — any other one-of-many choice, an
+  `OptionStrip` each. The view mode is not one of them.
+- **View profiles, sort menu, column picker, filter toggle, view-mode strip
+  cluster on the right** of the toolbar, in that order — so they land in the
+  same spot in every table and a reader's muscle memory carries over. The
+  view menu opens the cluster and carries the `ml-auto`; the view-mode strip
+  closes it.
 
 Toolbar slot, in order:
 `SearchInput` · filter `Combobox`es · pipe divider · quick-filter
-`OptionStrip` (`multiple`) · option strips (`OptionStrip` for table/cards mode)
-· `ViewProfileMenu` · `SortMenu` · `ColumnPicker` (table mode
-only) · filter-toggle `IconButton` with an `activeFilterCount` badge (when the
-list has a `FilterPanel`).
+`OptionStrip` (`multiple`) · option strips · `ViewProfileMenu` · `SortMenu` ·
+`ColumnPicker` (table mode only) · filter-toggle `IconButton` with an
+`activeFilterCount` badge (when the list has a `FilterPanel`) · `OptionStrip`
+for table/cards mode, last.
 
 ```html
 <div class="h-5 w-px bg-gray-200 dark:bg-white/10" role="separator" aria-orientation="vertical"></div>

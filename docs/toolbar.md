@@ -12,7 +12,7 @@ so every list in the application reads the same way.
     <Combobox … />                       <!-- two to four standard filters -->
     <div class="h-5 w-px bg-gray-200 dark:bg-white/10" role="separator" aria-orientation="vertical"></div>
     <OptionStrip variant="pills" multiple … />  <!-- quick filters, optional -->
-    <OptionStrip v-model="state.mode" variant="segmented" … />  <!-- option strips -->
+    <OptionStrip … />                    <!-- option strips, optional -->
 
     <ViewProfileMenu class="ml-auto" … />  <!-- opens the right-hand cluster -->
     <SortMenu … />
@@ -21,6 +21,7 @@ so every list in the application reads the same way.
         <IconFilter />
         <span v-if="activeFilterCount" class="badge">{{ activeFilterCount }}</span>
     </IconButton>
+    <OptionStrip v-model="state.mode" variant="segmented" … />  <!-- view mode, last -->
 </template>
 ```
 
@@ -30,11 +31,13 @@ so every list in the application reads the same way.
 - **Quick filters** follow behind a pipe divider: one `OptionStrip variant="pills"
   multiple`, a pill per filter. Each pill switches on and off on its own, and the strip
   never has an "All" option — no pill set already means all.
-- **Option strips** — one-of-many choices such as the view mode — come next.
+- **Option strips** — any other one-of-many choice — come next. The view mode is not one
+  of them.
 - **Advanced filters** — date ranges, thresholds, cross-cutting flags — live in the
   `FilterPanel`, opened by the filter toggle with the `activeFilterCount` badge.
-- **The right-hand cluster** — views, sort, columns, filter toggle — lands in the same
-  spot in every table, so a reader's muscle memory carries over.
+- **The right-hand cluster** — views, sort, columns, filter toggle, view mode — lands in
+  the same spot in every table, so a reader's muscle memory carries over. The view mode
+  closes it.
 - **A list opens unfiltered.** Dropdown and quick filters start empty; another default is
   the exception.
 
