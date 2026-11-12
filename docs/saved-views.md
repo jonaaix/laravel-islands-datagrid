@@ -30,7 +30,7 @@ Schema::create('datatable_view_profiles', function (Blueprint $table) {
 
 The model is `App\Models\DatatableViewProfile` by default ([configurable](/configuration)),
 with `payload` cast to array. `section` names the list a view belongs to, so one table
-serves every list.
+serves every list; the names come from the application's [section enum](/preferences#sections).
 
 ## The Schema
 
@@ -47,13 +47,14 @@ namespace App\Islands\Invoices\State;
 
 use Aaix\LaravelIslandsDatagrid\ViewProfiles\ViewProfileSchema;
 use Aaix\LaravelIslandsDatagrid\ViewProfiles\ViewProfileStore;
+use App\Enums\DatagridSectionEnum;
 use App\Islands\Invoices\Queries\InvoicesQuery;
 
 class InvoicesViewProfiles
 {
     public static function store(): ViewProfileStore
     {
-        return new ViewProfileStore('invoices', self::schema());
+        return new ViewProfileStore(DatagridSectionEnum::Invoices, self::schema());
     }
 
     private static function schema(): ViewProfileSchema

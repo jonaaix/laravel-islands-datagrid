@@ -18,14 +18,14 @@ Use `Records` as the placeholder feature name below.
 ```text
 app/Islands/Records/
 ├── Records.island.vue
-├── RecordsIslandController.php   uses HandlesViewProfiles
+├── RecordsIslandController.php   uses HandlesViewProfiles, HandlesPreferences
 ├── RecordsProps.php              validates every URL-supplied value
 ├── Routes.php                    data · preferences · profiles.store · profiles.update
 ├── Queries/RecordsListQuery.php  SORTABLE · TABS · applyTabScope/Filters/Search
 ├── Presenters/RecordRowPresenter.php   the wire shape a row draws
-├── State/RecordsPreferences.php  per-user allowlisted view state
-├── State/RecordsViewProfiles.php ViewProfileStore + ViewProfileSchema
-├── Support/{Columns,Sorts,Preferences}.js
+├── State/RecordsPreferences.php  PreferenceStore + PreferenceSchema, section from the enum
+├── State/RecordsViewProfiles.php ViewProfileStore + ViewProfileSchema, same section
+├── Support/{Columns,Sorts}.js     the column register; its helpers come from useColumnPicker
 └── Components/RecordRow.vue      root <tr>
 ```
 
@@ -33,10 +33,11 @@ Skip a folder when its role never grows past one file.
 
 ## Backend, the pieces
 
-- **Controller.** `use HandlesViewProfiles`. One `authorizeAccess()` guard called
-  from every action, including `authorizeViewProfiles()`. `data()` returns
-  `['data' => $this->query->data($request)]`. `updatePreference()` validates
-  `key ∈ Preferences::ALLOWED` and writes through `UserSetting::set()`.
+- **Controller.** `use HandlesViewProfiles, HandlesPreferences`. One
+  `authorizeAccess()` guard called from every action, including
+  `authorizeViewProfiles()` and `authorizePreferences()`. `data()` returns
+  `['data' => $this->query->data($request)]`. Neither saved views nor
+  preferences get an endpoint of their own — the traits carry them.
 - **Query.** Owns the whitelists: `const SORTABLE`, `const TABS`. `data()` validates
   `tab`/`sort`/`dir`/`perPage`/`page` against them, then calls
   `applyTabScope()`, `applyFilters()`, `applySearch()`, orders and paginates,
@@ -49,8 +50,10 @@ Skip a folder when its role never grows past one file.
   class constants shared with the query. Returns
   `dataUrl`, `preferencesUrl`, `profilesUrl`, `profileUrl`, `profiles`,
   `activeProfile`, `preferences`, `tabs`, `filters`, `sortOptions`, `initial`.
-- **State.** `Preferences` allowlists which per-user keys the frontend may
-  write. `ViewProfiles` declares a `ViewProfileSchema` — `text`, `id`, `flag`,
+- **State.** Both classes take the list's case of the section enum.
+  `Preferences` returns a `PreferenceStore` whose `PreferenceSchema` allowlists
+  the per-user keys the frontend may write, stored in `datatable_preferences`.
+  `ViewProfiles` declares a `ViewProfileSchema` — `text`, `id`, `flag`,
   `choice`, `date`, `keyList` — so a shared view cannot smuggle anything into
   the next reader's table.
 
@@ -295,16 +298,16 @@ visible-column count including conditional ones — it drives skeleton and empty
 
 ### Small pieces the template refers to
 
-- `visibleColumns` derived from `state.cols` via `resolveColumnKeys()` against
-  the column registry from `Support/Columns.js`.
-- `colCount` = sum of `column.span` over visibleColumns.
+- `columns = useColumnPicker(COLUMN_REGISTRY, { remembered, remember })` before
+  `useDataTable`, `columns.connect(table)` after it; `columns.visible` for the
+  header and rows, `columns.span` for `colCount`.
 - `TAB_ITEMS` built from `props.tabs` counts.
 - `MODE_OPTIONS` = `[{ value: 'table', icon: IconModeTable }, { value: 'cards',
   icon: IconModeCards }]` for `<OptionStrip variant="segmented">`.
 - `setTab(tab)`: sets `state.tab`, resets `state.page = 1`, then `reload()`.
-- `setColumns(keys)`: writes `state.cols`, `syncUrl()`, `sendJson(preferencesUrl,
-  { key: 'columns', value: state.cols })`.
-- `setMode(mode)`: same shape, key `'mode'`.
+- `ColumnPicker` binds `columns.keys`, `columns.changed`, `columns.set`,
+  `columns.reset`; `remember` sends `{ key: 'columns', value }` to `preferencesUrl`.
+- `setMode(mode)`: writes `state.mode`, `syncUrl()`, and sends `{ key: 'mode', value }`.
 - `onMounted(() => fetchData())`.
 
 ## Rules of thumb

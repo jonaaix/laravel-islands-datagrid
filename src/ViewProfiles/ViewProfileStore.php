@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Aaix\LaravelIslandsDatagrid\ViewProfiles;
 
+use BackedEnum;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
@@ -18,10 +19,14 @@ class ViewProfileStore
 {
     public const MAX_NAME_LENGTH = 60;
 
+    private readonly string $section;
+
     public function __construct(
-        private readonly string $section,
+        BackedEnum|string $section,
         private readonly ViewProfileSchema $schema,
-    ) {}
+    ) {
+        $this->section = $section instanceof BackedEnum ? (string) $section->value : $section;
+    }
 
     /**
      * @return class-string<Model>

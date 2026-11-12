@@ -181,6 +181,14 @@ icon components — see the inventory in the sibling skill
 **`provideDatagrid({ t, locale })`** — optional; hands the package your
 translator. Without it, English source strings and locale `en`.
 
+## Sections
+
+Saved views and preferences are stored under a section — one name per list,
+shared by both stores. **Sections live in one backed enum** in the
+application (`App\Enums\DatagridSectionEnum`); both stores take the case,
+never a string. A value is stored in the database, so it never changes once
+a list has saved anything under it.
+
 ## Saved views, on the PHP side
 
 The three endpoints behind `ViewProfileMenu` ship with the package. Use the
@@ -210,6 +218,15 @@ A `ViewProfileSchema` declares what a saved payload may carry — `text`, `id`,
 `flag`, `tristate`, `date`, `choice`, `keyList`, each with its allowed values —
 and `sanitize()` drops the rest, so a shared view cannot smuggle anything into
 the next reader's table. Declare it there, not in the controller.
+
+## Columns and preferences, on the PHP side
+
+The column choice and any other per-user setting of a list go through
+`HandlesPreferences` and a `PreferenceStore` with a `PreferenceSchema`
+(`columns`, `choice`, `number`, `flag`), stored in the package's
+`datatable_preferences` table — never in an application's own user settings.
+On the frontend, `useColumnPicker` replaces any hand-written column helper.
+See `docs/preferences.md`.
 
 ## Harder cases
 

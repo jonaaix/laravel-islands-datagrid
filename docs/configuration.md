@@ -6,6 +6,7 @@ php artisan vendor:publish --tag=datagrid-config
 
 ```php
 // config/datagrid.php
+use App\Models\DatatablePreference;
 use App\Models\DatatableViewProfile;
 
 return [
@@ -14,6 +15,9 @@ return [
         'max_per_section' => 50,
         'ref_length' => 10,
     ],
+    'preferences' => [
+        'model' => DatatablePreference::class,
+    ],
 ];
 ```
 
@@ -21,10 +25,11 @@ return [
 | --- | --- | --- |
 | `view_profiles.model` | `App\Models\DatatableViewProfile` | The Eloquent model behind [saved views](/saved-views#the-model). Its table needs `public_ref`, `user_id`, `section`, `name`, a JSON `payload` and a boolean `is_default`. |
 | `view_profiles.max_per_section` | `50` | How many views one user may keep per list. Reaching it fails the save with a validation message. |
+| `preferences.model` | `App\Models\DatatablePreference` | The Eloquent model behind [preferences](/preferences#the-model). Its table needs `user_id`, `section`, `key` and a JSON `value`, unique per user, section and key. |
 | `view_profiles.ref_length` | `10` | Length of the public reference in shared links. Also the length an incoming reference is validated against — change it before the first view is saved, not after. |
 
-The config is only read when saved views are used. An application that never saves a
-view needs neither the model nor the published file.
+The config is only read when saved views or preferences are used. An application that
+uses neither needs no model and no published file.
 
 ## Page Sizes
 

@@ -138,32 +138,27 @@ kept in the URL and saved as a per-user preference.
 
 ```vue
 <ColumnPicker
-    :columns="COLUMNS"
-    :visible="visibleColumnKeys"
-    :changed="state.cols !== DEFAULTS.cols"
+    :columns="COLUMN_REGISTRY"
+    :visible="columns.keys.value"
+    :changed="columns.changed.value"
     :label="t('Columns')"
     :reset-label="t('Reset columns')"
-    @update="setColumns"
-    @reset="setColumns(DEFAULT_COLUMN_KEYS)"
+    @update="columns.set"
+    @reset="columns.reset"
 />
 ```
 
 | Prop | Default | Purpose |
 | --- | --- | --- |
-| `columns` | required | `{ key, label, locked? }[]`. A locked column cannot be hidden. |
+| `columns` | required | `{ key, label, default?, locked?, span? }[]`. A locked column cannot be hidden. |
 | `visible` | required | The keys currently shown. |
 | `changed` | `false` | Shows the count badge on the button and the reset row at the bottom. |
 | `label`, `resetLabel` | translated | |
 
 Events: `update(keys)` — in the order the columns were registered — and `reset`.
 
-`colCount` on the `DataTable` must follow the visible columns, conditional ones
-included. Derive it from the same list:
-
-```js
-const visibleColumns = computed(() => COLUMNS.filter((column) => visibleColumnKeys.value.includes(column.key)));
-const colCount = computed(() => visibleColumns.value.reduce((sum, column) => sum + (column.span ?? 1), 0));
-```
+`columns` comes from [`useColumnPicker`](/preferences#usecolumnpicker), which also keeps
+`colCount` right: pass `columns.span.value`.
 
 ## `FilterPanel`
 

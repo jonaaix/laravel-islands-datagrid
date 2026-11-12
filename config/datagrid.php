@@ -28,12 +28,11 @@ return [
     |
     | What a person chose for a table — its columns and whatever else its schema
     | declares. The model needs the columns `user_id`, `section`, `key` and a json
-    | `value`. An application with settings of its own binds a
-    | `PreferenceRepository` instead, and this key is never read.
+    | `value`, unique per person, section and key.
     |
     */
     'preferences' => [
-        'model' => 'App\\Models\\UserSetting',
+        'model' => 'App\\Models\\DatatablePreference',
     ],
 
 ];

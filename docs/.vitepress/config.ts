@@ -43,6 +43,7 @@ export default defineConfig({
             items: [
                { text: 'Selection & Bulk Actions', link: '/selection' },
                { text: 'Saved Views', link: '/saved-views' },
+               { text: 'Columns & Preferences', link: '/preferences' },
                { text: 'Responsive & Mobile', link: '/responsive' },
                { text: 'Configuration', link: '/configuration' },
             ],
