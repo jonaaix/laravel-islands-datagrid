@@ -9,7 +9,9 @@ description: Implement a data table with aaix/laravel-islands-datagrid — the J
 > [`base-datagrid-recipe.md`](./base-datagrid-recipe.md) first — a neutral,
 > step-by-step blueprint for a datagrid that carries its own weight: search,
 > sort, filters, tabs, pagination, column picker, saved views, card mode, empty
-> state and skeleton. Copy the shape, then trim what the feature does not need.
+> state and skeleton. Copy the shape whole. Only filters may be trimmed —
+> search, saved views, sort, column picker and the view mode belong to every
+> table.
 >
 > **Before adding any component,** consult the helpers/composables inventory in
 > the sibling skill (`islands-development/helpers-index.md`) — this package's

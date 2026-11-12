@@ -10,26 +10,33 @@ so every list in the application reads the same way.
 <template #toolbar>
     <SearchInput … />
     <Combobox … />                       <!-- two to four standard filters -->
-    <OptionStrip … />                    <!-- quick filters, optional -->
+    <div class="h-5 w-px bg-gray-200 dark:bg-white/10" role="separator" aria-orientation="vertical"></div>
+    <OptionStrip variant="pills" multiple … />  <!-- quick filters, optional -->
+    <OptionStrip v-model="state.mode" variant="segmented" … />  <!-- option strips -->
 
     <ViewProfileMenu class="ml-auto" … />  <!-- opens the right-hand cluster -->
     <SortMenu v-if="state.mode !== 'table'" … />
     <ColumnPicker v-if="state.mode === 'table'" … />
-    <IconButton :label="t('Filters')" size="lg" @click="toggleFilters">
+    <IconButton :label="t('Filters')" size="lg" @click="toggleFilters">  <!-- with a FilterPanel -->
         <IconFilter />
         <span v-if="activeFilterCount" class="badge">{{ activeFilterCount }}</span>
     </IconButton>
-    <OptionStrip v-model="state.mode" variant="segmented" … />
 </template>
 ```
 
 - **Search is always there**, first. No list turns it off.
 - **Standard filters** — the two to four almost every reader reaches for — sit beside it
   as `Combobox`es.
+- **Quick filters** follow behind a pipe divider: one `OptionStrip variant="pills"
+  multiple`, a pill per filter. Each pill switches on and off on its own, and the strip
+  never has an "All" option — no pill set already means all.
+- **Option strips** — one-of-many choices such as the view mode — come next.
 - **Advanced filters** — date ranges, thresholds, cross-cutting flags — live in the
   `FilterPanel`, opened by the filter toggle with the `activeFilterCount` badge.
-- **The right-hand cluster** — views, sort, columns, filter toggle, view mode — lands in
-  the same spot in every table, so a reader's muscle memory carries over.
+- **The right-hand cluster** — views, sort, columns, filter toggle — lands in the same
+  spot in every table, so a reader's muscle memory carries over.
+- **A list opens unfiltered.** Dropdown and quick filters start empty. An application may
+  set another default for a list, but that is the exception.
 
 Every control is 36px tall (`size="lg"` on the icon buttons), so the row reads as one
 line.
