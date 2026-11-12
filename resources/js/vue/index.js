@@ -25,6 +25,14 @@ export {
 export { useDataTable } from './composables/useDataTable.js';
 export { useSelection } from './composables/useSelection.js';
 export { useViewProfiles } from './composables/useViewProfiles.js';
+export {
+    columnDeviationsFromDefaults,
+    defaultColumnKeys,
+    resolveColumnKeys,
+    sameColumns,
+    useColumnPicker,
+    visibleColumnKeys,
+} from './composables/useColumnPicker.js';
 export { useAutoMobileMode } from './composables/useAutoMobileMode.js';
 export { useFilterPanelDock } from './composables/useFilterPanelDock.js';
 // The width belongs to every island, not only to one with a table, so it lives in the base
