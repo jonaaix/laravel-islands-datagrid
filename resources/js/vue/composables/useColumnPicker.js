@@ -35,9 +35,18 @@ export function columnDeviationsFromDefaults(columns, visible) {
         .join(',');
 }
 
-/** The keys a stored choice shows; a column added since follows its default. */
+/**
+ * The keys a stored choice shows; a column added since follows its default. A choice that names a
+ * default column without the off mark was stored as the full list, and is read as exactly that.
+ */
 export function visibleColumnKeys(columns, deviations) {
     const entries = keyList(deviations);
+    const defaults = new Set(defaultColumnKeys(columns));
+
+    if (entries.some((key) => !key.startsWith(SWITCHED_OFF) && defaults.has(key))) {
+        return resolveColumnKeys(columns, entries.join(','));
+    }
+
     const switchedOff = new Set(entries.filter((key) => key.startsWith(SWITCHED_OFF)).map((key) => key.slice(1)));
     const switchedOn = new Set(entries.filter((key) => !key.startsWith(SWITCHED_OFF)));
 
